@@ -1,0 +1,570 @@
+<!DOCTYPE html><html lang="en" class="dark" style=""><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#131313",
+                        "error-container": "#93000a",
+                        "outline-variant": "#444557",
+                        "tertiary": "#d1bcff",
+                        "primary-fixed": "#dfe0ff",
+                        "surface": "#131313",
+                        "surface-bright": "#3a3939",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-lowest": "#0e0e0e",
+                        "inverse-surface": "#e5e2e1",
+                        "tertiary-fixed-dim": "#d1bcff",
+                        "primary": "#bdc2ff",
+                        "primary-container": "#253cff",
+                        "tertiary-fixed": "#e9ddff",
+                        "on-secondary-fixed": "#181e00",
+                        "secondary-fixed-dim": "#b6d300",
+                        "surface-container-highest": "#353534",
+                        "tertiary-container": "#7107ff",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-container": "#d0d3ff",
+                        "on-secondary": "#2b3400",
+                        "surface-tint": "#bdc2ff",
+                        "on-secondary-container": "#4c5a00",
+                        "secondary-container": "#b8d601",
+                        "outline": "#8f8fa3",
+                        "on-tertiary-fixed-variant": "#5700c9",
+                        "on-error-container": "#ffdad6",
+                        "on-background": "#e5e2e1",
+                        "surface-container": "#201f1f",
+                        "surface-variant": "#353534",
+                        "on-primary-fixed": "#000965",
+                        "secondary-fixed": "#d1f02f",
+                        "inverse-primary": "#293fff",
+                        "on-surface-variant": "#c5c5da",
+                        "on-tertiary-fixed": "#23005b",
+                        "on-tertiary-container": "#deceff",
+                        "surface-dim": "#131313",
+                        "on-tertiary": "#3c0090",
+                        "on-primary-fixed-variant": "#001fdd",
+                        "on-primary": "#00149f",
+                        "on-error": "#690005",
+                        "secondary": "#d4f332",
+                        "on-secondary-fixed-variant": "#404c00",
+                        "electric-blue": "#253CFF",
+                        "neon-lime": "#DFFF3F"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "game-card": "20px"
+                    },
+                    "spacing": {
+                        "xxl": "64px",
+                        "margin-desktop": "48px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "xl": "40px",
+                        "lg": "24px",
+                        "container-max": "1440px",
+                        "xs": "4px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "display-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-md": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                        "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    }catch(_e){}</script><meta charset="utf-8"></head><body class="bg-background text-on-surface selection:bg-neon-lime selection:text-black">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto bg-background/80 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+<div class="flex items-center gap-10">
+<div class="flex items-center gap-3">
+<img alt="Reload Brand Logo" class="h-10 w-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6mp0CbufSNcQTZ6-1KgBJhBX8CtXvVAawSNFEZPuJiwnDGDS35hTupQaM_oxSCyKuOyQMlj3Z-xy6YftgMoRPs9u-q_YGCQ6g66QHFnK1Gtjx-ECguHTwRw36ZGQMXqhW6MsKK8I6wqcSlPEwDys_1WYosx2TpA5UVh9OAzIc7xJv35FqDuLITTcE9civKXHRtxBnkvZjFrYoVzWe1LkLQQI5untx1khZEY33yTuCTAJE5HXOnADe">
+<span class="font-display-md text-headline-md font-black tracking-tighter text-on-surface uppercase">Reload</span>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a href="#" class="font-label-md text-label-md text-secondary font-bold border-b-2 border-secondary pb-1">Browse</a>
+<a href="#" class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors">Categories</a>
+<a href="#" class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors">Deals</a>
+<a href="#" class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors">New Releases</a>
+<a href="#" class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors">Support</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-high rounded-full px-4 py-2 border border-outline-variant/30 focus-within:border-electric-blue transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-xl">search</span>
+<input type="text" placeholder="Search for games..." class="bg-transparent border-none focus:ring-0 text-body-md py-0 px-2 w-48 text-on-surface">
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface transition-colors scale-95 active:scale-90">shopping_cart</button>
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded-xl font-label-md text-label-md font-bold blue-glow transition-transform active:scale-95">Sign In</button>
+</div>
+</div>
+</header>
+<main class="pt-24 overflow-x-hidden">
+<!-- Hero Section -->
+<section class="relative min-h-[85vh] flex items-center px-margin-desktop max-w-container-max mx-auto py-xxl">
+<!---->
+
+<div class="grid lg:grid-cols-2 gap-xl items-center relative z-10">
+<div class="flex flex-col gap-lg">
+<div class="inline-flex items-center gap-2 bg-electric-blue/10 border border-electric-blue/20 px-4 py-1.5 rounded-full w-fit">
+<span class="material-symbols-outlined text-electric-blue text-sm">stars</span>
+<span class="text-electric-blue font-label-md text-[12px] uppercase tracking-widest">New Arrival: Black Myth Wukong</span>
+</div>
+<h1 class="font-display-lg text-display-lg leading-none">
+                        Reload your <br> <span class="text-neon-lime">next adventure.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                        Discover thousands of PC games. Search instantly, browse curated collections, and purchase with secure checkout.
+                    </p>
+<div class="flex flex-wrap gap-md pt-4">
+<button class="bg-neon-lime text-background px-8 py-4 rounded-xl font-headline-md text-label-md font-bold uppercase tracking-wider neon-glow transition-all hover:-translate-y-1">
+                            Browse Games
+                        </button>
+<button class="border border-white/20 hover:bg-white/10 text-on-surface px-8 py-4 rounded-xl font-headline-md text-label-md font-bold uppercase tracking-wider transition-all">
+                            Explore Deals
+                        </button>
+</div>
+</div>
+<div class="hidden lg:flex relative h-[600px] w-full justify-center items-center">
+<!-- Abstract Hero Visual -->
+<div class="absolute w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,rgba(37,60,255,0.15)_0%,transparent_70%)] animate-pulse"></div>
+<div class="grid grid-cols-2 gap-6 rotate-12">
+<div class="space-y-6 pt-12">
+<div class="w-56 h-72 rounded-game-card overflow-hidden blue-glow hover:rotate-2 transition-transform duration-500">
+<img class="w-full h-full object-cover" data-alt="A vertical cinematic game cover art for a futuristic sci-fi RPG featuring a neon-lit cybernetic city in the background with a lone protagonist looking at the horizon. Deep atmospheric blues and sharp electric accents dominate the scene. Premium high-contrast gaming visual." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC10zf_RtXS9oz0YXMZQ-ZYs53yqX4GO6j5kQoNRjbp-G2sIXnyM4BBsPjo17yZUpQRlkhswf9fLgf1RLn8-a8sosWXvHZ-2Inp_NgvpQ2rB4pP89QyoNfNltTZWO4Bktzxz9DEYE5GSCf96Cyv5Q09XNx1_GrilZ9Nl40VO3Vm0bmvO0cvLN11OIa2DHC0prceckCh6VPN1-ZLQH_uGu-n8DRubcnRCnhfK1wn0FA_c0yvGbNacowz">
+</div>
+<div class="w-56 h-72 rounded-game-card overflow-hidden glass-panel border border-white/10 hover:-rotate-2 transition-transform duration-500">
+<img class="w-full h-full object-cover" data-alt="Action-packed cover art for a fantasy adventure game with a colossal dragon soaring above a misty pine forest. Golden sunrise light piercing through clouds, creating dramatic shadows and highlights. Rich greens and ethereal atmospheric depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_Onxb29yf3T-VplH3Q2BznytEtV_0L4BQjUL19GNb1LqYK1N4o-44GJneewjNaDIJ86C54_SvmX7yWiHQrad_yNQn9cr6a-0ok40pS1cOnr203Zbu41P1unL0PYUW61MTilSk3XqNo7FI6GSwLFaV0Xl8JuZD0NorElws7sXF9ca2c-Ty0yaS1rbs3e60njzhMRdHz_ZtO08gP5g68mTIBLBEpbIU9sPYsLJlVQzz_P7L6SgvIuLS">
+</div>
+</div>
+<div class="space-y-6">
+<div class="w-56 h-72 rounded-game-card overflow-hidden glass-panel border border-white/10 hover:-rotate-2 transition-transform duration-500">
+<img class="w-full h-full object-cover" data-alt="Stunning cinematic game visual of a tactical special ops soldier in high-tech stealth gear emerging from the shadows. The lighting is low-key with intense blue rim lighting. The overall style is gritty, realistic, and modern-military." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7DdX1IFF5xAqFVt4CjKNojVRsHIdcXjb_WwXUrYyERW4HdSZwd1M-ObySF5HNCa_S6T1mjh2iJ2tNfhZbdaw7NVPrizPmHwLS5neJezb-rE-njRrcSkhGO0elXDFJ0R7YaJuH-Q5HLgIzLU90zXnmuhdRO-_Ek-KLWlAKOSQisEvdZraaitKEBBC17a5F91CXKbPOKdUWZ2v2Ez_PUs7m8jMjYlo3vV1PHnqsWh3OKUMRnc4pnLKp">
+</div>
+<div class="w-56 h-72 rounded-game-card overflow-hidden blue-glow hover:rotate-2 transition-transform duration-500">
+<img class="w-full h-full object-cover" data-alt="Vibrant stylized game art for a high-speed racing game featuring a sleek glowing supercar drifting on a futuristic wet street at night. Neon reflections on the asphalt and light trails create a sense of extreme speed and energy. Electric blue and lime green color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkmCHaoUo8WPZX4uPbjtumZ3xPV-TMXJ7JNOP6R1vpiBAWmNh4DYJXwbN9BbxL9uUGE12J5G9nRVBsWlwxcM8iTmjtVMCMjFtezFjlcn-fYvj6pk_tpLPDTWx5N2kzIPNOZyDBFZFmU46FaVe-V0Vw6fq1QwEWnaYq71kHC4Mj8tYzOn-H7dZfjmFOmJcypAssW2u0N6bwqlct-VWIIl3V2l7rCXcVDb1T-lJszpoZNPxCadbpq56p">
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Search Bar Overlay (Directly below hero) -->
+<section class="px-margin-desktop max-w-container-max mx-auto -mt-10 relative z-20">
+<div class="glass-panel p-lg rounded-[24px] border border-white/10 shadow-2xl">
+<div class="flex flex-col lg:flex-row gap-lg items-center">
+<div class="flex-1 w-full relative">
+<span class="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant text-2xl">search</span>
+<input class="w-full bg-surface-container-low border border-white/10 focus:border-electric-blue focus:ring-0 rounded-2xl py-5 pl-16 pr-6 text-headline-md font-body-md transition-all" placeholder="Search for games..." type="text">
+</div>
+<div class="flex flex-wrap gap-sm justify-center">
+<span class="text-on-surface-variant text-label-sm font-label-sm uppercase tracking-widest pt-1 px-2">Trending:</span>
+<button class="px-4 py-2 bg-white/5 hover:bg-electric-blue/20 rounded-full text-label-md transition-colors border border-white/5">Elden Ring</button>
+<button class="px-4 py-2 bg-white/5 hover:bg-electric-blue/20 rounded-full text-label-md transition-colors border border-white/5">Cyberpunk 2077</button>
+<button class="px-4 py-2 bg-white/5 hover:bg-electric-blue/20 rounded-full text-label-md transition-colors border border-white/5">GTA V</button>
+<button class="px-4 py-2 bg-white/5 hover:bg-electric-blue/20 rounded-full text-label-md transition-colors border border-white/5">Black Myth Wukong</button>
+<button class="px-4 py-2 bg-white/5 hover:bg-electric-blue/20 rounded-full text-label-md transition-colors border border-white/5">Baldur's Gate 3</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Categories Section -->
+<section class="py-xxl px-margin-desktop max-w-container-max mx-auto">
+<div class="flex justify-between items-end mb-xl">
+<div>
+<h2 class="font-headline-lg text-headline-lg">Browse by <span class="text-electric-blue">Genre</span></h2>
+<p class="text-on-surface-variant font-body-md">Find exactly what you love to play.</p>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-gutter">
+<a class="group flex flex-col items-center gap-4 p-6 glass-panel rounded-game-card border border-white/5 transition-all hover:bg-electric-blue hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform">swords</span>
+<span class="font-label-md text-label-md">Action</span>
+</a>
+<a class="group flex flex-col items-center gap-4 p-6 glass-panel rounded-game-card border border-white/5 transition-all hover:bg-electric-blue hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform">auto_fix_high</span>
+<span class="font-label-md text-label-md">RPG</span>
+</a>
+<a class="group flex flex-col items-center gap-4 p-6 glass-panel rounded-game-card border border-white/5 transition-all hover:bg-electric-blue hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform">explore</span>
+<span class="font-label-md text-label-md">Adventure</span>
+</a>
+<a class="group flex flex-col items-center gap-4 p-6 glass-panel rounded-game-card border border-white/5 transition-all hover:bg-electric-blue hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform">palette</span>
+<span class="font-label-md text-label-md">Indie</span>
+</a>
+<a class="group flex flex-col items-center gap-4 p-6 glass-panel rounded-game-card border border-white/5 transition-all hover:bg-electric-blue hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform">groups</span>
+<span class="font-label-md text-label-md">Multiplayer</span>
+</a>
+<a class="group flex flex-col items-center gap-4 p-6 glass-panel rounded-game-card border border-white/5 transition-all hover:bg-electric-blue hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform">skull</span>
+<span class="font-label-md text-label-md">Horror</span>
+</a>
+<a class="group flex flex-col items-center gap-4 p-6 glass-panel rounded-game-card border border-white/5 transition-all hover:bg-electric-blue hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform">sports_esports</span>
+<span class="font-label-md text-label-md">Racing</span>
+</a>
+<a class="group flex flex-col items-center gap-4 p-6 glass-panel rounded-game-card border border-white/5 transition-all hover:bg-electric-blue hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform" data-original-icon="account_">account_tree</span>
+<span class="font-label-md text-label-md">Strategy</span>
+</a>
+</div>
+</section>
+<!-- Trending Games Section -->
+<section class="py-xxl px-margin-desktop max-w-container-max mx-auto bg-[radial-gradient(ellipse_at_bottom,rgba(37,60,255,0.05)_0%,transparent_70%)]">
+<div class="flex justify-between items-end mb-xl">
+<div>
+<h2 class="font-headline-lg text-headline-lg">Trending <span class="text-neon-lime">Now</span></h2>
+<p class="text-on-surface-variant font-body-md">What's hot in the gaming world right now.</p>
+</div>
+<button class="text-electric-blue font-label-md text-label-md flex items-center gap-2 hover:underline">
+                    View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Game Card 1 -->
+<div class="group relative bg-surface-container-low rounded-game-card overflow-hidden game-card-hover transition-all duration-300">
+<div class="aspect-[3/4] relative">
+<img class="w-full h-full object-cover" data-alt="A dark and majestic game cover for a souls-like RPG featuring a broken golden ring glowing in the center of an ancient crumbling throne room. The atmosphere is somber, filled with golden dust particles and dramatic shadows. Extremely detailed and moody cinematic aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJY6D5DgTUwraygtTwU5hmD5XAAc9h8zPaJtIPsKOHN2WS9BUxz6JO9WnP7vYFjP1WY5FuvIe87EzmmuX4omowb9NydREhA3KZ2g3zUN0naszCP8gfYWrIJ74zDgeZIY_SLLcHpPGv1N36ig0Z6wz-D88oRVJjE5ebBA98xDjdWpA9TCm9zVrEubXbEZEI0MMqzIN_TJmOKPRlsPGmof1ubHSaGWae-TqLp-DE_UdzRPYWTOTPZdfj">
+<div class="absolute top-4 left-4">
+<span class="bg-neon-lime text-black px-3 py-1 rounded-full font-label-sm text-[11px] font-bold uppercase">-15%</span>
+</div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md group-hover:text-electric-blue transition-colors">Elden Ring</h3>
+<div class="flex items-center text-neon-lime">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm ml-1">4.9</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-label-sm line-through">$59.99</span>
+<span class="text-on-surface font-headline-md">$49.99</span>
+</div>
+<button class="bg-white/10 p-3 rounded-xl hover:bg-electric-blue transition-colors">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Game Card 2 -->
+<div class="group relative bg-surface-container-low rounded-game-card overflow-hidden game-card-hover transition-all duration-300">
+<div class="aspect-[3/4] relative">
+<img class="w-full h-full object-cover" data-alt="Neon-drenched game cover art for a futuristic open-world action title. A cyborg character with glowing implants stands before a rainy cyberpunk alleyway filled with holographic advertisements. Vibrant pink and teal lighting against deep black night backgrounds." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs9Jh2jxICIngmG_Okgseh7NU_OhovEDY-UNoVitr948z5Tpg1PJffJT7S9KOA9_0-0hPeUrm6yFvwJT61zUp8aoDuUcvJ5ZC6XhXp-On-5IabBL46pTTaOgKO_fo2bi8Zf6bqR5qt4RcABh1Rch3XxeLO0zpbjfbGbWAvNm2AGPhFXH2FqkAiQ6_BEBNpE49cZbn-2g_TPn4OlSQU20pks363jYJv9XWKv1oZlmMesy4d-gK9TFsd">
+<div class="absolute top-4 left-4">
+<span class="bg-electric-blue text-white px-3 py-1 rounded-full font-label-sm text-[11px] font-bold uppercase">Must Play</span>
+</div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md group-hover:text-electric-blue transition-colors">Cyberpunk 2077</h3>
+<div class="flex items-center text-neon-lime">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm ml-1">4.7</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex flex-col">
+<span class="text-on-surface font-headline-md">$59.99</span>
+</div>
+<button class="bg-white/10 p-3 rounded-xl hover:bg-electric-blue transition-colors">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Game Card 3 -->
+<div class="group relative bg-surface-container-low rounded-game-card overflow-hidden game-card-hover transition-all duration-300">
+<div class="aspect-[3/4] relative">
+<img class="w-full h-full object-cover" data-alt="Dynamic game cover art of a superhero in a bright red and blue suit swinging through a detailed cityscape of a sunny metropolis. High-altitude perspective with motion blur on the streets below. Cinematic lighting emphasizing the textures of the suit." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA88JRXuXxkV94dO5nS4h_Z74gcSWYSCAwL87kFD4hfmLLsGfbsz4YFeWTym50OIEyRZ3VjjqebKMljuqBts-Y9LMcthotxdKO_CL70JnM56if2lEmPpmduCN3ePhBveqv-Cz4ONCWBmxIywYtw-G3MM8hM1W4gt3N9OgC-Emd17ZU0meXH5iNt1dWTZvybiHg6-936Mhh4V8aCQgLLYfL-R1CqmacKjMB4DZPv5vK-wGRZpKDQEcU2">
+<div class="absolute top-4 left-4">
+<span class="bg-neon-lime text-black px-3 py-1 rounded-full font-label-sm text-[11px] font-bold uppercase">-30%</span>
+</div>
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md group-hover:text-electric-blue transition-colors">Spider-Man</h3>
+<div class="flex items-center text-neon-lime">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm ml-1">4.8</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-label-sm line-through">$49.99</span>
+<span class="text-on-surface font-headline-md">$34.99</span>
+</div>
+<button class="bg-white/10 p-3 rounded-xl hover:bg-electric-blue transition-colors">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Game Card 4 -->
+<div class="group relative bg-surface-container-low rounded-game-card overflow-hidden game-card-hover transition-all duration-300">
+<div class="aspect-[3/4] relative">
+<img class="w-full h-full object-cover" data-alt="Epic and brutal game cover featuring a muscular warrior with an axe standing amidst a snowy Nordic landscape. A young boy stands beside him, both facing towards a massive, ancient temple in the distance. Cool blue color palette with warm orange ember effects." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5HNTDTGKYArDw3xJaMRfqlTLg_ZRVqJRNeBPTOUt9ZFtEL48UhUXrx1RMaej6q3d5G8m76qVtj0QfCViFHmArsA5SIUjjuCmWNjwf8cU1GdhsCsx9c5DqitPnmEFHLeElphA18DkgLrKg1SR6vSKk4jV13vA-qzDdIuZAFQ0WZHoMj7fCCbrnwfZSXJOogWdU9QaGorJfITt41Cfutz9HWYgSyZ78D4Jpdrd43o5Cr8NZG_UiQlE8">
+</div>
+<div class="p-lg">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md group-hover:text-electric-blue transition-colors">God of War</h3>
+<div class="flex items-center text-neon-lime">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm ml-1">5.0</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex flex-col">
+<span class="text-on-surface font-headline-md">$39.99</span>
+</div>
+<button class="bg-white/10 p-3 rounded-xl hover:bg-electric-blue transition-colors">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- New Releases Carousel -->
+<section class="py-xxl">
+<div class="px-margin-desktop max-w-container-max mx-auto mb-lg">
+<h2 class="font-headline-lg text-headline-lg">New <span class="text-electric-blue">Releases</span></h2>
+</div>
+<div class="flex gap-gutter overflow-x-auto px-margin-desktop pb-lg hide-scrollbar snap-x">
+<!-- Carousel Items (8 items) -->
+<div class="min-w-[300px] snap-start group relative rounded-game-card overflow-hidden">
+<img class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Game art for a new release set in a lush tropical jungle with hidden ancient ruins. The lighting is golden hour, casting long shadows and vibrant orange hues across the dense foliage. High-fidelity textures and atmospheric haze." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2XskSb-4uToXCmkEdPK66-Z8I9yIxpdIJMq9pHqY_M8dmc8yTBfMItqj7oikZMG8yZyT3P5QnqXOWTl-yqfTqHU-FMuOsZ8sMUbhk7C0KZTm3D_VLvfG0nqfymelSkl3Y0x4v82hvN6Dd6AiTE9o902zev3hWiAVf9XKsGqwjCm4c6HWs8k3Dp70FbLEdksZaZg-7cKUlOaPzIjWy84R92RCNYes2VFv_IPsGx-R2wi_MlM9DwqkD">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent p-6 flex flex-col justify-end">
+<span class="text-neon-lime text-label-sm font-bold uppercase mb-1">Coming Tuesday</span>
+<h4 class="font-headline-md text-headline-md">The Last Frontier</h4>
+</div>
+</div>
+<div class="min-w-[300px] snap-start group relative rounded-game-card overflow-hidden">
+<img class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Cover art for a competitive tactical shooter game showing specialized agents in a high-tech training facility. The style is clean, modern, and clinical with a strong emphasis on blue and white color schemes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpy9UUcHVnmyiAzQwszjEgJfqFycibFDNGivbll2FzFBuFaxPV5EXMJwt0WXQPKovs1bhAgFu9ecZrNH358rY0Iill99JdkeJKZRIIPpGqqb5xCVEivIkrfx8G-tfj9MTR7yds2K7P8HFDG897kvxJ9IGvb_BMEmuzIFL64uH0h8V-LJJBYrb-ZMy1F4Ys2SFghmn6pSDVFJw8VWUT5wjCvGaTGYSyzgfdhl-fHmtfWh7eJJ1kkUS-">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent p-6 flex flex-col justify-end">
+<span class="text-neon-lime text-label-sm font-bold uppercase mb-1">Out Now</span>
+<h4 class="font-headline-md text-headline-md">Strike Force Zero</h4>
+</div>
+</div>
+<div class="min-w-[300px] snap-start group relative rounded-game-card overflow-hidden">
+<img class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Magical landscape game art with floating islands and purple auroras in a starry sky. A whimsical yet high-production quality aesthetic, full of sparkles and mystical energy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5W_lPoSn_gTFI6dOIHFgj0wyOzf38MbqNgMa7-KLBr2Prlq_DX8o5pXeiEkOzk8r6aTGPEhdevGAQeP7557RrRVKw6ohLjyxMz23T4LZ55o0j_sEMqIXh0bf2fWy3l1Nfg_ZEzZwtDJaesTOlG0XAWeBHuiUTw5GCZs0GlOsOEKZO-6YCjhZqDX1_mvPgmfYUXNR95keHWBseki0xfypm_2o-q7AG_DCOyXzfEx3QMxiB5B7I--L1">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent p-6 flex flex-col justify-end">
+<span class="text-neon-lime text-label-sm font-bold uppercase mb-1">Pre-order</span>
+<h4 class="font-headline-md text-headline-md">Etheria Rising</h4>
+</div>
+</div>
+<div class="min-w-[300px] snap-start group relative rounded-game-card overflow-hidden">
+<img class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Dark gritty horror game art featuring a flashlight beam cutting through the darkness of an abandoned gothic asylum. Tense atmosphere with subtle shadowy figures lurking in the periphery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNT7SvDrsLIkyaDNFnda_Zbz63DaEpFySsXnWFynL_LzmocaNdH_QQ5VSwu_0xm8IWvcayNNAR7v8snAHb0vOgC4leTq3TWA1amo_Z9DFaPkSJcQEtUL3dvx1N0HieVkP2kLiP_66ct4lElLrraFmeTrI6E4gqXg07lcKGo9x6dXx95YpL1Mbt4YlmWO_gM24BHxEbXuwIXOmSRBOJMNH5XeIwxdfDSmaPIXJpTM2oASKCGi4IccWL">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent p-6 flex flex-col justify-end">
+<span class="text-neon-lime text-label-sm font-bold uppercase mb-1">New</span>
+<h4 class="font-headline-md text-headline-md">Nightmare Echoes</h4>
+</div>
+</div>
+<div class="min-w-[300px] snap-start group relative rounded-game-card overflow-hidden">
+<img class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Art for a high-octane racing game set on a neon-lit futuristic track that loops through a vertical city. Vibrant light streaks and glowing car components." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFc9jOextjP0qdo-GmKt5H_wqvC5-QlaSo1OcFMqV5LPKId9j84ZCpqO97sc1nS_qZsUSNYPnpqaw4ovJZAnAYiJDqwIaK5bho8nawqYRQLn_EW46ZdmmXD8fgi98tRLMJrhXFkoFpzt4nm4e_ChkzZ0IO4Hd1YAAp8dDyxh6hF3At0HIwOinG6ezAWKKvf9xN9Bm1D3CekCsdigpIL8dhdiSZRVdfxmbNRGAd-Caj5ksyHbkYpsBR">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent p-6 flex flex-col justify-end">
+<span class="text-neon-lime text-label-sm font-bold uppercase mb-1">Coming Soon</span>
+<h4 class="font-headline-md text-headline-md">Velocity Neon</h4>
+</div>
+</div>
+</div>
+</section>
+<!-- Why Reload Section (Feature Bento) -->
+<section class="py-xxl px-margin-desktop max-w-container-max mx-auto">
+<h2 class="font-headline-lg text-headline-lg mb-xl text-center">Why choose <span class="text-neon-lime">Reload?</span></h2>
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="p-lg glass-panel rounded-game-card border border-white/5 hover:border-electric-blue/30 transition-all flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-2xl bg-electric-blue/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-4xl text-electric-blue">bolt</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Instant Delivery</h3>
+<p class="text-on-surface-variant font-body-md">Get your keys immediately after purchase. No waiting, just playing.</p>
+</div>
+<div class="p-lg glass-panel rounded-game-card border border-white/5 hover:border-electric-blue/30 transition-all flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-2xl bg-electric-blue/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-4xl text-electric-blue">lock</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Secure Payments</h3>
+<p class="text-on-surface-variant font-body-md">Industry-standard encryption ensures your transactions are 100% safe.</p>
+</div>
+<div class="p-lg glass-panel rounded-game-card border border-white/5 hover:border-electric-blue/30 transition-all flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-2xl bg-electric-blue/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-4xl text-electric-blue">sports_esports</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Massive Library</h3>
+<p class="text-on-surface-variant font-body-md">Thousands of AAA and Indie titles at your fingertips anytime.</p>
+</div>
+<div class="p-lg glass-panel rounded-game-card border border-white/5 hover:border-electric-blue/30 transition-all flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-2xl bg-electric-blue/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-4xl text-electric-blue">chat</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">24/7 Support</h3>
+<p class="text-on-surface-variant font-body-md">Our gaming experts are always online to help you with any issues.</p>
+</div>
+</div>
+</section>
+<!-- Community Live Activity Dashboard -->
+<section class="py-xxl px-margin-desktop max-w-container-max mx-auto">
+<div class="glass-panel p-xl rounded-[32px] border border-white/10 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-electric-blue/10 blur-[100px]"></div>
+<div class="flex flex-col lg:flex-row gap-xl">
+<div class="lg:w-1/3">
+<h2 class="font-headline-lg text-headline-lg mb-4">Live <span class="text-neon-lime">Activity</span></h2>
+<p class="text-on-surface-variant font-body-md mb-8">Join thousands of gamers currently browsing and buying their next favorite titles.</p>
+<div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+<div class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-lime opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-neon-lime"></span>
+</div>
+<span class="font-label-md text-label-md uppercase tracking-widest">12,482 Players Online</span>
+</div>
+</div>
+<div class="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Activity Rows -->
+<div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center gap-4 animate-pulse">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small avatar of a gaming profile with a stylized character icon." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl4nwcqLHfun8_swt7sukpdnCe1nkX9DttPqFDU_KrBYlFHW3LwML_OwwAocx2c3qyQh9c2VtgVTRTQ1gTIeou5-bhTbghX2rJQhfep9L-6DOCJ9mKAY6vJnpPzTKLNZlD083QhvpgNHHcJRPd9w30eK0CvkY13JdqNy4SeHJu1_kD24C1evrrfDbTiHGsOVPYBbjkQ2cIP3WyuW4Mw3BYhOKvZVMobYtD1acXi4_LQ-bN7EAmotNF">
+</div>
+<div>
+<p class="text-body-md"><span class="font-bold text-electric-blue">AlexGamer</span> just purchased <span class="font-bold">Elden Ring</span></p>
+<span class="text-label-sm text-on-surface-variant">2 minutes ago</span>
+</div>
+</div>
+<div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small avatar of a gaming profile with a stylized character icon." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6sLGxe5SoS7pBKJDU3H69OE-8TZtFo5TUzVperawco2J3K3L-Bjy3GjU-th86S1AIkm-dzFHtSU5RH1v32pStsBdn_LTgz-f_IXMl55WTiDvM-cVpTxwDvuGvbr5bMt5qN7k1QLOEfMjMbKlcQkcUBKxteXK9Y4511wDHO7ncI0JcySAhP42zSs8dJSpMDQqHFni3jMioLwUPvDzR09SlcErLryo9seNGVqGVLUT6iRfjO6xPXSMc">
+</div>
+<div>
+<p class="text-body-md"><span class="font-bold text-electric-blue">SarahQuest</span> added <span class="font-bold">Cyberpunk</span> to wishlist</p>
+<span class="text-label-sm text-on-surface-variant">5 minutes ago</span>
+</div>
+</div>
+<div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small avatar of a gaming profile with a stylized character icon." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOgrtxO84EBNyYGkTgeVYSqYMIcjXxwKP9n_PDNxSkhPGZ5_cdWRZJ1SCYoKqT_I9zzI8Ftfq3fMNHGPAIXtiVE6intcxrr176_FgbRHSk_6vn0P71Tugtrt51LqZCUpuN3QonbpgBFshS-dQJ-biPFd0qAU9nr8HmWO1ZkR7px02H_8nE3vDpXmDzTPmXRxENs-uL_O1DOEpfwbaagc7BpdYH0_h4bk8-ru1fgrq068RG4xbS_Rl6">
+</div>
+<div>
+<p class="text-body-md"><span class="font-bold text-electric-blue">MarcusX</span> just purchased <span class="font-bold">FC 24</span></p>
+<span class="text-label-sm text-on-surface-variant">12 minutes ago</span>
+</div>
+</div>
+<div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small avatar of a gaming profile with a stylized character icon." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUXebax-f4HhOtBDEA04Fg6zSJqu2h1tne_oSRPv-R1K5XpZ0SeJnX-9FORLEoyUNYNK-ro8jSz_yJ72eOWAayBEhp2v4qnVFGvNlepl_n6oj_huGw5eAI0Sb9Gn3iHJhDabkqdJdx6-gLgh33TQ0YDc3coTmW3hc_2LpTV4lyZBXMfvfRGNgN3B2N1zwDLE7m4iwTvuaOyIf3n-P_HAir6ztDxoLlypRfl4RsUN0A2-AqYik9Xdrq">
+</div>
+<div>
+<p class="text-body-md"><span class="font-bold text-electric-blue">ElenaV</span> left a 5-star review for <span class="font-bold">Spider-Man</span></p>
+<span class="text-label-sm text-on-surface-variant">15 minutes ago</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter Section -->
+<section class="py-xxl px-margin-desktop max-w-container-max mx-auto text-center relative">
+<div class="max-w-2xl mx-auto py-xl">
+<h2 class="font-display-md text-display-md mb-4">Stay <span class="text-electric-blue">Updated.</span></h2>
+<p class="text-on-surface-variant font-body-lg mb-8">Receive exclusive offers, new release alerts, and gaming news directly in your inbox.</p>
+<form class="flex flex-col sm:flex-row gap-4 p-2 bg-surface-container-low border border-white/10 rounded-2xl focus-within:border-electric-blue transition-all">
+<input class="bg-transparent border-none focus:ring-0 flex-1 px-6 py-4 text-on-surface" placeholder="Enter your email address" required="" type="email">
+<button class="bg-electric-blue text-white px-8 py-4 rounded-xl font-headline-md text-label-md font-bold uppercase tracking-wider blue-glow transition-all active:scale-95" type="submit">
+                        Subscribe
+                    </button>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xxl px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-gutter max-w-container-max mx-auto border-t border-outline-variant bg-surface-container-lowest">
+<div class="flex flex-col items-center md:items-start gap-4">
+<div class="flex items-center gap-2">
+<img alt="Reload Brand Logo" class="h-8 w-8 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6mp0CbufSNcQTZ6-1KgBJhBX8CtXvVAawSNFEZPuJiwnDGDS35hTupQaM_oxSCyKuOyQMlj3Z-xy6YftgMoRPs9u-q_YGCQ6g66QHFnK1Gtjx-ECguHTwRw36ZGQMXqhW6MsKK8I6wqcSlPEwDys_1WYosx2TpA5UVh9OAzIc7xJv35FqDuLITTcE9civKXHRtxBnkvZjFrYoVzWe1LkLQQI5untx1khZEY33yTuCTAJE5HXOnADe">
+<span class="font-display-md text-headline-md font-black text-secondary uppercase">Reload</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs text-center md:text-left">
+                © 2024 Reload Digital Game Store. All rights reserved.
+            </p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Refund Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Careers</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Affiliates</a>
+</div>
+<div class="flex gap-6">
+<a class="opacity-80 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary">language</span>
+</a>
+<a class="opacity-80 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary">public</span>
+</a>
+<a class="opacity-80 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary">help</span>
+</a>
+</div>
+</footer>
+<script>
+        // Simple scroll reveal effect for sections
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+            observer.observe(section);
+        });
+
+        // Interactive game cards
+        document.querySelectorAll('.game-card-hover').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    </script>
+
+</body></html>
