@@ -46,17 +46,37 @@ type TokenPair struct {
 	RefreshToken string
 }
 
+// UserStore and RefreshTokenStore are the slices of persistence this service
+// needs. They are interfaces so the auth rules can be exercised against
+// in-memory fakes; *repository.UserRepository and *repository.RefreshTokenRepository
+// are the production implementations.
+type UserStore interface {
+	Create(user *models.User) error
+	GetByEmail(email string) (*models.User, error)
+	GetByID(id uint) (*models.User, error)
+}
+
+type RefreshTokenStore interface {
+	Create(token *models.RefreshToken) error
+	GetByHash(hash string) (*models.RefreshToken, error)
+	Revoke(id uint) error
+	RevokeAllForUser(userID uint) error
+	Rotate(oldID uint, replacement *models.RefreshToken) error
+}
+
+// Fail at compile time if the repositories drift away from what this needs.
+var (
+	_ UserStore         = (*repository.UserRepository)(nil)
+	_ RefreshTokenStore = (*repository.RefreshTokenRepository)(nil)
+)
+
 type AuthService struct {
-	users  *repository.UserRepository
-	tokens *repository.RefreshTokenRepository
+	users  UserStore
+	tokens RefreshTokenStore
 	tm     *auth.TokenManager
 }
 
-func NewAuthService(
-	users *repository.UserRepository,
-	tokens *repository.RefreshTokenRepository,
-	tm *auth.TokenManager,
-) *AuthService {
+func NewAuthService(users UserStore, tokens RefreshTokenStore, tm *auth.TokenManager) *AuthService {
 	return &AuthService{users: users, tokens: tokens, tm: tm}
 }
 
