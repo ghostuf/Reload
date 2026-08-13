@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"net/http"
 
+	"github.com/ghostuf/reload/internal/auth"
 	"github.com/ghostuf/reload/internal/config"
 	"github.com/ghostuf/reload/internal/handlers"
 	"github.com/ghostuf/reload/internal/repository"
@@ -10,14 +12,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func corsMiddleware() gin.HandlerFunc {
+// corsMiddleware allows credentialed requests from a single known origin.
+// Browsers reject cookies on a response with "Access-Control-Allow-Origin: *",
+// so the origin is echoed back only when it matches the configured one.
+func corsMiddleware(allowedOrigin string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type")
+		// The allowed origin varies per request, so caches must key on it.
+		c.Header("Vary", "Origin")
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
+		if c.GetHeader("Origin") == allowedOrigin {
+			c.Header("Access-Control-Allow-Origin", allowedOrigin)
+			c.Header("Access-Control-Allow-Credentials", "true")
+			c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			c.Header("Access-Control-Allow-Headers", "Content-Type")
+		}
+
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
 
@@ -27,6 +38,9 @@ func corsMiddleware() gin.HandlerFunc {
 
 func main() {
 	cfg := config.Load()
+	if err := cfg.Validate(); err != nil {
+		log.Fatalf("invalid configuration: %v", err)
+	}
 
 	db, err := repository.Connect(cfg.DatabaseURL)
 	if err != nil {
@@ -37,19 +51,41 @@ func main() {
 		log.Fatalf("failed to auto-migrate: %v", err)
 	}
 
+	tokenManager := auth.NewTokenManager(cfg.JWTAccessSecret)
+	cookieOpts := auth.CookieOptions{
+		Domain: cfg.CookieDomain,
+		Secure: cfg.CookieSecure,
+	}
+
 	gameRepo := repository.NewGameRepository(db)
 	gameService := services.NewGameService(gameRepo)
 	gameHandler := handlers.NewGameHandler(gameService)
 
+	userRepo := repository.NewUserRepository(db)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
+	authService := services.NewAuthService(userRepo, refreshTokenRepo, tokenManager)
+	authHandler := handlers.NewAuthHandler(authService, cookieOpts)
+
 	router := gin.Default()
-	router.Use(corsMiddleware())
+	router.Use(corsMiddleware(cfg.FrontendOrigin))
 
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
 	router.GET("/games", gameHandler.ListGames)
 	router.GET("/games/:id", gameHandler.GetGame)
+
+	// Grouped under /auth to match the path the refresh cookie is scoped to,
+	// so it is never sent along with ordinary API requests.
+	authRoutes := router.Group("/auth")
+	{
+		authRoutes.POST("/register", authHandler.Register)
+		authRoutes.POST("/login", authHandler.Login)
+		authRoutes.POST("/refresh", authHandler.Refresh)
+		authRoutes.POST("/logout", authHandler.Logout)
+		authRoutes.GET("/me", auth.RequireAuth(tokenManager), authHandler.Me)
+	}
 
 	log.Printf("starting reload api on port %s", cfg.Port)
 	if err := router.Run(":" + cfg.Port); err != nil {
