@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import NavAccount from "@/components/NavAccount";
 
 export default function Navbar() {
   return (
@@ -25,6 +26,7 @@ export default function Navbar() {
           >
             All Games
           </Link>
+          <NavAccount />
         </nav>
       </div>
     </header>
