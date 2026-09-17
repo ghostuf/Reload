@@ -1,8 +1,17 @@
 import type { GameResponse, GamesResponse } from "@/types/game";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
-export class ApiError extends Error {}
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status = 0) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
 
 export type ListGamesParams = {
   search?: string;
@@ -22,7 +31,7 @@ export async function getGames(params: ListGamesParams): Promise<GamesResponse> 
 
   const res = await fetch(`${API_BASE_URL}/games?${query.toString()}`);
   if (!res.ok) {
-    throw new ApiError(`Failed to fetch games (${res.status})`);
+    throw new ApiError(`Failed to fetch games (${res.status})`, res.status);
   }
   return res.json();
 }
@@ -31,7 +40,7 @@ export async function getGame(id: string) {
   const res = await fetch(`${API_BASE_URL}/games/${id}`);
   if (res.status === 404) return null;
   if (!res.ok) {
-    throw new ApiError(`Failed to fetch game (${res.status})`);
+    throw new ApiError(`Failed to fetch game (${res.status})`, res.status);
   }
   const body: GameResponse = await res.json();
   return body.data;
