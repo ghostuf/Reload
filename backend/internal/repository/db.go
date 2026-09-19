@@ -30,6 +30,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&models.GameImage{},
 		&models.User{},
 		&models.RefreshToken{},
+		&models.CartItem{},
+		&models.WishlistItem{},
 	); err != nil {
 		return fmt.Errorf("running auto-migration: %w", err)
 	}

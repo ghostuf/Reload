@@ -23,7 +23,7 @@ func corsMiddleware(allowedOrigin string) gin.HandlerFunc {
 		if c.GetHeader("Origin") == allowedOrigin {
 			c.Header("Access-Control-Allow-Origin", allowedOrigin)
 			c.Header("Access-Control-Allow-Credentials", "true")
-			c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			c.Header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 			c.Header("Access-Control-Allow-Headers", "Content-Type")
 		}
 
@@ -66,6 +66,14 @@ func main() {
 	authService := services.NewAuthService(userRepo, refreshTokenRepo, tokenManager)
 	authHandler := handlers.NewAuthHandler(authService, cookieOpts)
 
+	cartRepo := repository.NewCartRepository(db)
+	cartService := services.NewCartService(cartRepo, gameRepo)
+	cartHandler := handlers.NewCartHandler(cartService)
+
+	wishlistRepo := repository.NewWishlistRepository(db)
+	wishlistService := services.NewWishlistService(wishlistRepo, gameRepo)
+	wishlistHandler := handlers.NewWishlistHandler(wishlistService)
+
 	router := gin.Default()
 	router.Use(corsMiddleware(cfg.FrontendOrigin))
 
@@ -85,6 +93,20 @@ func main() {
 		authRoutes.POST("/refresh", authHandler.Refresh)
 		authRoutes.POST("/logout", authHandler.Logout)
 		authRoutes.GET("/me", auth.RequireAuth(tokenManager), authHandler.Me)
+	}
+
+	cartRoutes := router.Group("/cart", auth.RequireAuth(tokenManager))
+	{
+		cartRoutes.GET("", cartHandler.GetCart)
+		cartRoutes.POST("", cartHandler.AddToCart)
+		cartRoutes.DELETE("/:game_id", cartHandler.RemoveFromCart)
+	}
+
+	wishlistRoutes := router.Group("/wishlist", auth.RequireAuth(tokenManager))
+	{
+		wishlistRoutes.GET("", wishlistHandler.GetWishlist)
+		wishlistRoutes.POST("", wishlistHandler.AddToWishlist)
+		wishlistRoutes.DELETE("/:game_id", wishlistHandler.RemoveFromWishlist)
 	}
 
 	log.Printf("starting reload api on port %s", cfg.Port)
