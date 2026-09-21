@@ -18,7 +18,7 @@ type ErrorBody = {
 };
 
 /** readError pulls the API's message out of a failed response. */
-async function readError(res: Response, fallback: string): Promise<ApiError> {
+export async function readError(res: Response, fallback: string): Promise<ApiError> {
   const body: ErrorBody | null = await res.json().catch(() => null);
   return new ApiError(body?.error || fallback, res.status);
 }

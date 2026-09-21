@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CartButton, WishlistButton } from "@/components/GameActions";
 import { getGame } from "@/lib/api";
 
 export default async function GameDetailPage({
@@ -80,6 +81,11 @@ export default async function GameDetailPage({
                 ${game.price.toFixed(2)}
               </span>
             )}
+          </div>
+
+          <div className="flex flex-wrap items-start gap-3">
+            <CartButton gameId={game.id} variant="detail" />
+            <WishlistButton gameId={game.id} variant="detail" />
           </div>
 
           <p className="max-w-2xl leading-relaxed text-on-surface-variant">
