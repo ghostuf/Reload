@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import NavAccount from "@/components/NavAccount";
+import NavShop from "@/components/NavShop";
 
 export default function Navbar() {
   return (
@@ -19,13 +20,16 @@ export default function Navbar() {
             Reload
           </span>
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-3 sm:gap-6">
+          {/* The logo already links home, so this gives way on phones to
+              leave room for the cart and account. */}
           <Link
             href="/"
-            className="text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
+            className="hidden text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface sm:inline"
           >
             All Games
           </Link>
+          <NavShop />
           <NavAccount />
         </nav>
       </div>
