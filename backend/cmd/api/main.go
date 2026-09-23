@@ -74,6 +74,17 @@ func main() {
 	wishlistService := services.NewWishlistService(wishlistRepo, gameRepo)
 	wishlistHandler := handlers.NewWishlistHandler(wishlistService)
 
+	checkoutService := services.NewCheckoutService(db)
+	checkoutHandler := handlers.NewCheckoutHandler(checkoutService)
+
+	orderRepo := repository.NewOrderRepository(db)
+	orderService := services.NewOrderService(orderRepo)
+	orderHandler := handlers.NewOrderHandler(orderService)
+
+	libraryRepo := repository.NewLibraryRepository(db)
+	libraryService := services.NewLibraryService(libraryRepo)
+	libraryHandler := handlers.NewLibraryHandler(libraryService)
+
 	router := gin.Default()
 	router.Use(corsMiddleware(cfg.FrontendOrigin))
 
@@ -108,6 +119,16 @@ func main() {
 		wishlistRoutes.POST("", wishlistHandler.AddToWishlist)
 		wishlistRoutes.DELETE("/:game_id", wishlistHandler.RemoveFromWishlist)
 	}
+
+	router.POST("/checkout", auth.RequireAuth(tokenManager), checkoutHandler.Checkout)
+
+	orderRoutes := router.Group("/orders", auth.RequireAuth(tokenManager))
+	{
+		orderRoutes.GET("", orderHandler.ListOrders)
+		orderRoutes.GET("/:id", orderHandler.GetOrder)
+	}
+
+	router.GET("/library", auth.RequireAuth(tokenManager), libraryHandler.GetLibrary)
 
 	log.Printf("starting reload api on port %s", cfg.Port)
 	if err := router.Run(":" + cfg.Port); err != nil {

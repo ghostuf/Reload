@@ -11,9 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
  * This is a convenience redirect, not a security boundary: the markup it wraps
  * ships to the browser either way. Anything that actually needs protecting is
  * gated by the API, which reads the session cookie this client cannot forge.
- *
- * Nothing uses it yet — there are no protected pages in this iteration beyond
- * /account, which uses it in place of the redirect it used to inline.
  */
 export default function RequireAuth({
   children,

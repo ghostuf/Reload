@@ -48,3 +48,11 @@ func (r *CartRepository) Delete(userID, gameID uint) error {
 	}
 	return nil
 }
+
+// ClearByUser removes every item in a user's cart, e.g. after checkout.
+func (r *CartRepository) ClearByUser(userID uint) error {
+	if err := r.db.Where("user_id = ?", userID).Delete(&models.CartItem{}).Error; err != nil {
+		return fmt.Errorf("clearing cart: %w", err)
+	}
+	return nil
+}
