@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import { useLibrary } from "@/hooks/useLibrary";
 import { useWishlist } from "@/hooks/useWishlist";
 
 type Variant = "card" | "detail";
@@ -22,7 +23,7 @@ function useSignInRedirect() {
   return () => router.push(`/login?next=${encodeURIComponent(pathname)}`);
 }
 
-function Spinner() {
+export function Spinner() {
   return (
     <svg
       aria-hidden
@@ -119,6 +120,10 @@ const cartButtonSize: Record<CartVariant, string> = {
 /**
  * CartButton adds a game to the cart. Once the game is in the cart it becomes a
  * link to /cart, since adding it a second time is not something the cart allows.
+ *
+ * A game already in the user's library replaces it entirely: there is nothing
+ * to sell someone who owns it, and checkout would skip it anyway. Owning beats
+ * being in the cart, which is the state a game bought in another tab lands in.
  */
 export function CartButton({
   gameId,
@@ -129,11 +134,26 @@ export function CartButton({
 }) {
   const { user } = useAuth();
   const cart = useCart();
+  const library = useLibrary();
   const redirectToSignIn = useSignInRedirect();
   const [error, setError] = useState<string | null>(null);
 
   const pending = cart.isPending(gameId);
   const size = cartButtonSize[variant];
+
+  if (user && library.has(gameId)) {
+    return (
+      <Link
+        href="/library"
+        className={`flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 font-bold text-on-surface transition-colors hover:border-white/25 hover:bg-surface-container ${size}`}
+      >
+        <span className="text-neon-lime">
+          <CheckIcon />
+        </span>
+        Owned
+      </Link>
+    );
+  }
 
   if (user && cart.has(gameId)) {
     return (
@@ -166,8 +186,10 @@ export function CartButton({
       <button
         type="button"
         onClick={handleClick}
-        // While the lists load we cannot tell whether it is already in the cart.
-        disabled={cart.loading || pending}
+        // While the lists load we cannot tell whether it is already in the cart
+        // or already owned, and offering to sell an owned game is worse than
+        // making the button wait a moment.
+        disabled={cart.loading || library.loading || pending}
         title={error ?? undefined}
         className={`flex items-center justify-center gap-2 rounded-xl bg-electric-blue font-bold text-white transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 ${size}`}
       >

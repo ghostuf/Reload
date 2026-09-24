@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { CartIcon, RemoveButton } from "@/components/GameActions";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { CartIcon, RemoveButton, Spinner } from "@/components/GameActions";
 import GameListItem, { GameListSkeleton } from "@/components/GameListItem";
 import RequireAuth from "@/components/RequireAuth";
 import { useCart } from "@/hooks/useCart";
+import { useLibrary } from "@/hooks/useLibrary";
+import { checkout } from "@/lib/orders";
 
 export default function CartView() {
   return (
@@ -80,9 +84,10 @@ function CartContents() {
                   </dd>
                 </div>
               </dl>
+              <CheckoutButton />
               <Link
                 href="/"
-                className="mt-6 block text-center text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
+                className="mt-4 block text-center text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
               >
                 Continue Browsing
               </Link>
@@ -91,6 +96,69 @@ function CartContents() {
         )}
       </section>
     </main>
+  );
+}
+
+/**
+ * CheckoutButton buys everything in the cart and sends the user to the receipt.
+ *
+ * It stays disabled from the moment it succeeds until the navigation lands:
+ * the cart it would charge for is gone by then, so re-enabling it would only
+ * offer the user a second click that could not work.
+ */
+function CheckoutButton() {
+  const cart = useCart();
+  const library = useLibrary();
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleCheckout() {
+    setPending(true);
+    setError(null);
+
+    try {
+      const order = await checkout();
+      // The API emptied the cart inside the checkout transaction; clearing it
+      // here keeps the navbar badge from showing a cart that no longer exists.
+      cart.clearCart();
+      // The games just bought are in the library now. Re-reading it is what
+      // makes them show as owned without a reload; a failure here only costs
+      // a stale library, so it must not derail a purchase that succeeded.
+      library.refresh().catch(() => {});
+      router.push(`/orders/${order.id}`);
+    } catch (err) {
+      // An empty cart or a cart of already-owned games arrives here as the
+      // API's own message, which says which of the two it was.
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : "Could not complete your purchase",
+      );
+      setPending(false);
+    }
+  }
+
+  return (
+    <div className="mt-6 flex flex-col gap-3">
+      <button
+        type="button"
+        onClick={handleCheckout}
+        disabled={pending}
+        className="flex items-center justify-center gap-2 rounded-xl bg-electric-blue px-6 py-3 text-base font-bold text-white transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
+      >
+        {pending && <Spinner />}
+        {pending ? "Processing…" : error ? "Try Again" : "Checkout"}
+      </button>
+      {error && (
+        <p
+          role="alert"
+          className="rounded-xl border border-red-400/30 bg-red-400/5 px-4 py-3 text-sm text-red-400"
+        >
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 

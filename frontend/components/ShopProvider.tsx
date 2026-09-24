@@ -9,8 +9,10 @@ import {
 } from "react";
 import { ApiError } from "@/lib/api";
 import * as cartApi from "@/lib/cart";
+import { getLibrary } from "@/lib/orders";
 import { useAuth } from "@/hooks/useAuth";
 import type { CartItem, WishlistItem } from "@/types/cart";
+import type { LibraryItem } from "@/types/order";
 
 type Collection<T> = {
   items: T[];
@@ -28,6 +30,11 @@ export type CartContextValue = Collection<CartItem> & {
   total: number;
   addToCart: (gameId: number) => Promise<void>;
   removeFromCart: (gameId: number) => Promise<void>;
+  /**
+   * Empties the cart locally, for after a checkout the API has already
+   * emptied it server-side. It sends no request of its own.
+   */
+  clearCart: () => void;
 };
 
 export type WishlistContextValue = Collection<WishlistItem> & {
@@ -35,8 +42,21 @@ export type WishlistContextValue = Collection<WishlistItem> & {
   removeFromWishlist: (gameId: number) => Promise<void>;
 };
 
+/**
+ * The library is read-only: games arrive in it by being bought, never by being
+ * added or taken out, so it has no mutations and no per-game pending state.
+ */
+export type LibraryContextValue = Omit<
+  Collection<LibraryItem>,
+  "isPending"
+> & {
+  /** Re-reads the library, after a checkout added to it. */
+  refresh: () => Promise<void>;
+};
+
 export const CartContext = createContext<CartContextValue | null>(null);
 export const WishlistContext = createContext<WishlistContextValue | null>(null);
+export const LibraryContext = createContext<LibraryContextValue | null>(null);
 
 type CollectionApi<T> = {
   list: () => Promise<T[]>;
@@ -72,19 +92,21 @@ function messageOf(err: unknown, fallback: string): string {
 }
 
 /**
- * useGameCollection keeps one user's cart or wishlist in sync with the API.
+ * useUserList keeps one user's list of games — cart, wishlist, or library —
+ * in sync with the API.
  *
  * The loaded list is tagged with the user it belongs to rather than cleared
  * when the user changes. Anything tagged with someone else — including a
  * response that lands after sign-out — simply reads as empty, so logging out
  * clears the list without a reset step that could race an in-flight request.
+ *
+ * `list` must be stable across renders, since a new identity re-runs the read.
  */
-function useGameCollection<T extends { game_id: number }>(
+function useUserList<T extends { game_id: number }>(
   userId: number | null,
-  api: CollectionApi<T>,
+  list: () => Promise<T[]>,
 ) {
   const [loaded, setLoaded] = useState<Loaded<T> | null>(null);
-  const [pending, setPending] = useState<ReadonlySet<number>>(() => new Set());
 
   const current = loaded !== null && loaded.owner === userId ? loaded : null;
 
@@ -92,8 +114,7 @@ function useGameCollection<T extends { game_id: number }>(
     if (userId === null) return;
     let active = true;
 
-    api
-      .list()
+    list()
       .then((items) => {
         if (!active) return;
         setLoaded({ owner: userId, items, error: null });
@@ -110,7 +131,7 @@ function useGameCollection<T extends { game_id: number }>(
     return () => {
       active = false;
     };
-  }, [userId, api]);
+  }, [userId, list]);
 
   /** update applies a change only if the list still belongs to this user. */
   const update = useCallback(
@@ -126,9 +147,42 @@ function useGameCollection<T extends { game_id: number }>(
 
   /** resync replaces the list with the server's, after it proved us stale. */
   const resync = useCallback(async () => {
-    const items = await api.list();
+    const items = await list();
     update(() => items);
-  }, [api, update]);
+  }, [list, update]);
+
+  const items: T[] = current?.items ?? NO_ITEMS;
+
+  const has = useCallback(
+    (gameId: number) => items.some((i) => i.game_id === gameId),
+    [items],
+  );
+
+  return {
+    items,
+    // Until the user is known there is no list to wait for, so only a signed-in
+    // user with nothing loaded yet counts as loading.
+    loading: userId !== null && current === null,
+    error: current?.error ?? null,
+    has,
+    update,
+    resync,
+  };
+}
+
+/**
+ * useGameCollection adds the cart's and wishlist's mutations to a user list:
+ * adding, removing, and the pending state each one is in.
+ */
+function useGameCollection<T extends { game_id: number }>(
+  userId: number | null,
+  api: CollectionApi<T>,
+) {
+  const { items, loading, error, has, update, resync } = useUserList(
+    userId,
+    api.list,
+  );
+  const [pending, setPending] = useState<ReadonlySet<number>>(() => new Set());
 
   const track = useCallback(
     async (gameId: number, request: () => Promise<void>) => {
@@ -185,24 +239,17 @@ function useGameCollection<T extends { game_id: number }>(
     [api, track, update],
   );
 
-  const items: T[] = current?.items ?? NO_ITEMS;
-
-  const has = useCallback(
-    (gameId: number) => items.some((i) => i.game_id === gameId),
-    [items],
-  );
+  /** clear drops the list locally, for when the server has already emptied it. */
+  const clear = useCallback(() => update(() => NO_ITEMS), [update]);
 
   const isPending = useCallback(
     (gameId: number) => pending.has(gameId),
     [pending],
   );
 
-  const loading = userId !== null && current === null;
-  const error = current?.error ?? null;
-
   return useMemo(
-    () => ({ items, loading, error, has, isPending, add, remove }),
-    [items, loading, error, has, isPending, add, remove],
+    () => ({ items, loading, error, has, isPending, add, remove, clear }),
+    [items, loading, error, has, isPending, add, remove, clear],
   );
 }
 
@@ -216,6 +263,7 @@ export default function ShopProvider({
 
   const cart = useGameCollection(userId, cartCollectionApi);
   const wishlist = useGameCollection(userId, wishlistCollectionApi);
+  const library = useUserList(userId, getLibrary);
 
   const total = useMemo(
     () =>
@@ -238,6 +286,7 @@ export default function ShopProvider({
       total,
       addToCart: cart.add,
       removeFromCart: cart.remove,
+      clearCart: cart.clear,
     }),
     [cart, authLoading, total],
   );
@@ -255,10 +304,23 @@ export default function ShopProvider({
     [wishlist, authLoading],
   );
 
+  const libraryValue = useMemo<LibraryContextValue>(
+    () => ({
+      items: library.items,
+      loading: authLoading || library.loading,
+      error: library.error,
+      has: library.has,
+      refresh: library.resync,
+    }),
+    [library, authLoading],
+  );
+
   return (
     <CartContext.Provider value={cartValue}>
       <WishlistContext.Provider value={wishlistValue}>
-        {children}
+        <LibraryContext.Provider value={libraryValue}>
+          {children}
+        </LibraryContext.Provider>
       </WishlistContext.Provider>
     </CartContext.Provider>
   );
