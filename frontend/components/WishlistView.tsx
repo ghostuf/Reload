@@ -5,6 +5,7 @@ import { CartButton, HeartIcon, RemoveButton } from "@/components/GameActions";
 import GameListItem, { GameListSkeleton } from "@/components/GameListItem";
 import RequireAuth from "@/components/RequireAuth";
 import { useWishlist } from "@/hooks/useWishlist";
+import ErrorState from "@/components/ErrorState";
 
 export default function WishlistView() {
   return (
@@ -20,7 +21,7 @@ function WishlistContents() {
 
   return (
     <main className="flex-1">
-      <section className="mx-auto max-w-[1440px] px-6 pb-8 pt-16 md:px-12 md:pt-24">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-8 pt-16 md:px-12 md:pt-24">
         <p className="text-sm font-semibold uppercase tracking-widest text-electric-blue">
           Your Wishlist
         </p>
@@ -34,17 +35,16 @@ function WishlistContents() {
         )}
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-20 md:px-12">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-20 md:px-12">
         <div className="max-w-4xl">
           {wishlist.loading ? (
             <GameListSkeleton />
           ) : wishlist.error ? (
-            <p
-              role="alert"
-              className="rounded-game-card border border-red-400/30 bg-red-400/5 px-6 py-5 text-sm text-red-400"
-            >
-              {wishlist.error}
-            </p>
+            <ErrorState
+              title="Couldn't load your wishlist"
+              message={wishlist.error}
+              onRetry={wishlist.retry}
+            />
           ) : count === 0 ? (
             <EmptyWishlist />
           ) : (

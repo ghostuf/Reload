@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import Price from "@/components/Price";
 import type { Game } from "@/types/game";
 
 /**
@@ -13,9 +14,6 @@ export default function GameListItem({
   game: Game;
   actions: React.ReactNode;
 }) {
-  const hasDiscount =
-    game.discount_price != null && game.discount_price < game.price;
-
   return (
     <li className="flex gap-4 rounded-game-card border border-white/5 bg-surface-container-low p-3 sm:items-center sm:gap-5 sm:p-4">
       <Link
@@ -43,20 +41,7 @@ export default function GameListItem({
             {game.developer}
           </p>
           <div className="mt-2 flex items-center gap-2">
-            {hasDiscount ? (
-              <>
-                <span className="text-sm text-on-surface-variant line-through">
-                  ${game.price.toFixed(2)}
-                </span>
-                <span className="font-bold text-on-surface">
-                  ${game.discount_price!.toFixed(2)}
-                </span>
-              </>
-            ) : (
-              <span className="font-bold text-on-surface">
-                ${game.price.toFixed(2)}
-              </span>
-            )}
+            <Price game={game} showBadge />
           </div>
         </div>
 

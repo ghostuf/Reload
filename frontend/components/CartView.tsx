@@ -9,6 +9,7 @@ import RequireAuth from "@/components/RequireAuth";
 import { useCart } from "@/hooks/useCart";
 import { useLibrary } from "@/hooks/useLibrary";
 import { checkout } from "@/lib/orders";
+import ErrorState from "@/components/ErrorState";
 
 export default function CartView() {
   return (
@@ -24,7 +25,7 @@ function CartContents() {
 
   return (
     <main className="flex-1">
-      <section className="mx-auto max-w-[1440px] px-6 pb-8 pt-16 md:px-12 md:pt-24">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-8 pt-16 md:px-12 md:pt-24">
         <p className="text-sm font-semibold uppercase tracking-widest text-electric-blue">
           Your Cart
         </p>
@@ -38,16 +39,15 @@ function CartContents() {
         )}
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-20 md:px-12">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-20 md:px-12">
         {cart.loading ? (
           <GameListSkeleton />
         ) : cart.error ? (
-          <p
-            role="alert"
-            className="rounded-game-card border border-red-400/30 bg-red-400/5 px-6 py-5 text-sm text-red-400"
-          >
-            {cart.error}
-          </p>
+          <ErrorState
+            title="Couldn't load your cart"
+            message={cart.error}
+            onRetry={cart.retry}
+          />
         ) : count === 0 ? (
           <EmptyCart />
         ) : (

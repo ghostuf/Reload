@@ -76,9 +76,10 @@ export async function authedFetch(
   return fetch(`${API_BASE_URL}${path}`, request);
 }
 
-function jsonRequest(body: unknown): RequestInit {
+/** jsonRequest builds a request that sends `body` as JSON. */
+export function jsonRequest(method: string, body: unknown): RequestInit {
   return {
-    method: "POST",
+    method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   };
@@ -97,7 +98,7 @@ export type RegisterParams = {
 export async function register(params: RegisterParams): Promise<User> {
   const res = await fetch(
     `${API_BASE_URL}/auth/register`,
-    jsonRequest({
+    jsonRequest("POST", {
       email: params.email,
       password: params.password,
       display_name: params.displayName ?? "",
@@ -114,7 +115,7 @@ export async function register(params: RegisterParams): Promise<User> {
 
 export async function login(email: string, password: string): Promise<User> {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
-    ...jsonRequest({ email, password }),
+    ...jsonRequest("POST", { email, password }),
     credentials: "include",
   });
 

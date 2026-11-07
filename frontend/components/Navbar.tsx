@@ -6,8 +6,8 @@ import NavShop from "@/components/NavShop";
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-6 md:px-12">
-        <Link href="/" className="flex items-center gap-3">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 md:px-12">
+        <Link href="/" aria-label="Reload home" className="flex shrink-0 items-center gap-3">
           <Image
             src="/brand_assets/reload-logo.png"
             alt="Reload"
@@ -16,11 +16,11 @@ export default function Navbar() {
             className="h-8 w-8 object-contain"
             preload
           />
-          <span className="text-lg font-black uppercase tracking-tight text-on-surface">
+          <span className="hidden text-lg font-black uppercase tracking-tight text-on-surface min-[400px]:inline">
             Reload
           </span>
         </Link>
-        <nav className="flex items-center gap-3 sm:gap-6">
+        <nav className="flex min-w-0 items-center gap-2 sm:gap-6">
           {/* The logo already links home, so this gives way on phones to
               leave room for the cart and account. */}
           <Link

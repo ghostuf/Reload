@@ -1,19 +1,5 @@
 import Link from "next/link";
-
-// Iteration 1 has no GET /genres endpoint, so the taxonomy is hardcoded to
-// match the seeded data. Revisit if a genres endpoint is added later.
-const GENRES = [
-  "Action",
-  "RPG",
-  "Adventure",
-  "Indie",
-  "Multiplayer",
-  "Horror",
-  "Racing",
-  "Strategy",
-  "Simulation",
-  "Sports",
-];
+import { GENRES } from "@/lib/genres";
 
 type Props = {
   active?: string;

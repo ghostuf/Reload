@@ -20,7 +20,7 @@ function AccountDetails() {
 
   return (
     <main className="flex-1">
-      <section className="mx-auto max-w-[1440px] px-6 pb-8 pt-16 md:px-12 md:pt-24">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-8 pt-16 md:px-12 md:pt-24">
         <p className="text-sm font-semibold uppercase tracking-widest text-electric-blue">
           Your Account
         </p>
@@ -29,7 +29,7 @@ function AccountDetails() {
         </h1>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-20 md:px-12">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-20 md:px-12">
         <div className="max-w-xl rounded-[24px] border border-white/10 bg-surface-container-low/80 p-8 backdrop-blur-xl">
           <dl className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">

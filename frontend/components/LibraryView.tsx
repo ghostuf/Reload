@@ -5,6 +5,7 @@ import Link from "next/link";
 import RequireAuth from "@/components/RequireAuth";
 import { useLibrary } from "@/hooks/useLibrary";
 import type { LibraryItem } from "@/types/order";
+import ErrorState from "@/components/ErrorState";
 
 export default function LibraryView() {
   return (
@@ -20,7 +21,7 @@ function LibraryContents() {
 
   return (
     <main className="flex-1">
-      <section className="mx-auto max-w-[1440px] px-6 pb-8 pt-16 md:px-12 md:pt-24">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-8 pt-16 md:px-12 md:pt-24">
         <p className="text-sm font-semibold uppercase tracking-widest text-electric-blue">
           Your Games
         </p>
@@ -34,20 +35,19 @@ function LibraryContents() {
         )}
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-20 md:px-12">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-20 md:px-12">
         {library.loading ? (
           <LibrarySkeleton />
         ) : library.error ? (
-          <p
-            role="alert"
-            className="rounded-game-card border border-red-400/30 bg-red-400/5 px-6 py-5 text-sm text-red-400"
-          >
-            {library.error}
-          </p>
+          <ErrorState
+            title="Couldn't load your library"
+            message={library.error}
+            onRetry={library.retry}
+          />
         ) : count === 0 ? (
           <EmptyLibrary />
         ) : (
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
             {library.items.map((item, index) => (
               <LibraryCard
                 key={item.id}
@@ -165,7 +165,7 @@ function LibrarySkeleton({ tiles = 8 }: { tiles?: number }) {
   return (
     <div
       aria-hidden
-      className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4"
+      className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4"
     >
       {Array.from({ length: tiles }, (_, i) => (
         <div

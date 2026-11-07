@@ -9,6 +9,7 @@ import {
 } from "react";
 import { ApiError } from "@/lib/api";
 import * as cartApi from "@/lib/cart";
+import { currentPrice } from "@/lib/pricing";
 import { getLibrary } from "@/lib/orders";
 import { useAuth } from "@/hooks/useAuth";
 import type { CartItem, WishlistItem } from "@/types/cart";
@@ -23,6 +24,8 @@ type Collection<T> = {
   has: (gameId: number) => boolean;
   /** True while an add or remove for this game is in flight. */
   isPending: (gameId: number) => boolean;
+  /** Loads the list again after a failure, showing the loading state meanwhile. */
+  retry: () => void;
 };
 
 export type CartContextValue = Collection<CartItem> & {
@@ -145,6 +148,24 @@ function useUserList<T extends { game_id: number }>(
     [userId],
   );
 
+  /**
+   * retry drops a failed result so the list reads as loading, then loads it
+   * again. Unlike resync it also clears the error.
+   */
+  const retry = useCallback(() => {
+    if (userId === null) return;
+    setLoaded(null);
+    list()
+      .then((items) => setLoaded({ owner: userId, items, error: null }))
+      .catch((err: unknown) =>
+        setLoaded({
+          owner: userId,
+          items: [],
+          error: messageOf(err, "Could not load your items"),
+        }),
+      );
+  }, [userId, list]);
+
   /** resync replaces the list with the server's, after it proved us stale. */
   const resync = useCallback(async () => {
     const items = await list();
@@ -167,6 +188,7 @@ function useUserList<T extends { game_id: number }>(
     has,
     update,
     resync,
+    retry,
   };
 }
 
@@ -178,7 +200,7 @@ function useGameCollection<T extends { game_id: number }>(
   userId: number | null,
   api: CollectionApi<T>,
 ) {
-  const { items, loading, error, has, update, resync } = useUserList(
+  const { items, loading, error, has, update, resync, retry } = useUserList(
     userId,
     api.list,
   );
@@ -248,8 +270,8 @@ function useGameCollection<T extends { game_id: number }>(
   );
 
   return useMemo(
-    () => ({ items, loading, error, has, isPending, add, remove, clear }),
-    [items, loading, error, has, isPending, add, remove, clear],
+    () => ({ items, loading, error, has, isPending, add, remove, clear, retry }),
+    [items, loading, error, has, isPending, add, remove, clear, retry],
   );
 }
 
@@ -268,7 +290,7 @@ export default function ShopProvider({
   const total = useMemo(
     () =>
       cart.items.reduce(
-        (sum, item) => sum + cartApi.effectivePrice(item.game),
+        (sum, item) => sum + currentPrice(item.game),
         0,
       ),
     [cart.items],
@@ -283,6 +305,7 @@ export default function ShopProvider({
       error: cart.error,
       has: cart.has,
       isPending: cart.isPending,
+      retry: cart.retry,
       total,
       addToCart: cart.add,
       removeFromCart: cart.remove,
@@ -298,6 +321,7 @@ export default function ShopProvider({
       error: wishlist.error,
       has: wishlist.has,
       isPending: wishlist.isPending,
+      retry: wishlist.retry,
       addToWishlist: wishlist.add,
       removeFromWishlist: wishlist.remove,
     }),
@@ -310,6 +334,7 @@ export default function ShopProvider({
       loading: authLoading || library.loading,
       error: library.error,
       has: library.has,
+      retry: library.retry,
       refresh: library.resync,
     }),
     [library, authLoading],

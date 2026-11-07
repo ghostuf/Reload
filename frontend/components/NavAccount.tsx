@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function NavAccount() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, isAdmin, signOut } = useAuth();
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
   const [open, setOpen] = useState(false);
@@ -58,13 +58,14 @@ export default function NavAccount() {
       <div className="flex items-center gap-4">
         <Link
           href="/login"
-          className="text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
+          className="whitespace-nowrap text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
         >
           Sign In
         </Link>
+        {/* On phones there is only room for one; the login form links to registration. */}
         <Link
           href="/register"
-          className="rounded-xl bg-electric-blue px-4 py-2 text-sm font-bold text-white transition-transform active:scale-95"
+          className="hidden whitespace-nowrap rounded-xl bg-electric-blue px-4 py-2 text-sm font-bold text-white transition-transform active:scale-95 sm:inline-block"
         >
           Create Account
         </Link>
@@ -93,7 +94,8 @@ export default function NavAccount() {
         onClick={() => setOpen((wasOpen) => !wasOpen)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className={`flex items-center gap-3 rounded-xl border px-3 py-1.5 transition-colors hover:border-white/25 hover:bg-surface-container ${
+        aria-label={`Account menu for ${user.display_name}`}
+        className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 sm:gap-3 sm:px-3 transition-colors hover:border-white/25 hover:bg-surface-container ${
           open ? "border-white/25 bg-surface-container" : "border-white/10"
         }`}
       >
@@ -103,7 +105,7 @@ export default function NavAccount() {
         >
           {user.display_name.charAt(0).toUpperCase()}
         </span>
-        <span className="max-w-[12ch] truncate text-sm font-semibold text-on-surface">
+        <span className="hidden max-w-[12ch] truncate text-sm font-semibold text-on-surface sm:inline">
           {user.display_name}
         </span>
         <svg
@@ -127,7 +129,7 @@ export default function NavAccount() {
           ref={menuRef}
           role="menu"
           aria-label="Account"
-          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-white/10 bg-surface-container-low/95 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-xl"
+          className="absolute right-0 top-full z-50 mt-2 w-56 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-surface-container-low/95 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-xl"
         >
           <MenuLink href="/account" onSelect={() => setOpen(false)}>
             Account
@@ -138,6 +140,11 @@ export default function NavAccount() {
           <MenuLink href="/orders" onSelect={() => setOpen(false)}>
             Order History
           </MenuLink>
+          {isAdmin && (
+            <MenuLink href="/admin" onSelect={() => setOpen(false)}>
+              Admin
+            </MenuLink>
+          )}
 
           <div aria-hidden className="my-1.5 h-px bg-white/10" />
 

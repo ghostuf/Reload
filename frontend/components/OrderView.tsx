@@ -7,6 +7,7 @@ import RequireAuth from "@/components/RequireAuth";
 import { useLoad } from "@/hooks/useLoad";
 import { getOrder } from "@/lib/orders";
 import type { OrderItem } from "@/types/order";
+import ErrorState from "@/components/ErrorState";
 
 export default function OrderView({ orderId }: { orderId: string }) {
   return (
@@ -27,13 +28,13 @@ export function formatDate(iso: string): string {
 
 function OrderReceipt({ orderId }: { orderId: string }) {
   const load = useCallback(() => getOrder(orderId), [orderId]);
-  const { data: order, loading, error } = useLoad(load);
+  const { data: order, loading, error, retry } = useLoad(load);
 
   const items = order?.items ?? [];
 
   return (
     <main className="flex-1">
-      <section className="mx-auto max-w-[1440px] px-6 pb-8 pt-16 md:px-12 md:pt-24">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-8 pt-16 md:px-12 md:pt-24">
         <Link
           href="/orders"
           className="text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
@@ -53,17 +54,16 @@ function OrderReceipt({ orderId }: { orderId: string }) {
         )}
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-20 md:px-12">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-20 md:px-12">
         <div className="max-w-3xl">
           {loading ? (
             <ReceiptSkeleton />
           ) : error ? (
-            <p
-              role="alert"
-              className="rounded-game-card border border-red-400/30 bg-red-400/5 px-6 py-5 text-sm text-red-400"
-            >
-              {error}
-            </p>
+            <ErrorState
+              title="Couldn't load this order"
+              message={error}
+              onRetry={retry}
+            />
           ) : !order ? (
             <MissingOrder />
           ) : (

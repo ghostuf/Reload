@@ -8,6 +8,11 @@ export type AuthContextValue = {
   user: User | null;
   /** True only while the first /auth/me check is in flight. */
   loading: boolean;
+  /**
+   * Whether to show admin UI. Only a display hint: the API checks the role on
+   * every admin request, and re-reads it from the database each time.
+   */
+  isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (params: authApi.RegisterParams) => Promise<void>;
   signOut: () => Promise<void>;
@@ -74,9 +79,11 @@ export default function AuthProvider({
     }
   }, []);
 
+  const isAdmin = user?.role === "admin";
+
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, signIn, signUp, signOut }),
-    [user, loading, signIn, signUp, signOut],
+    () => ({ user, loading, isAdmin, signIn, signUp, signOut }),
+    [user, loading, isAdmin, signIn, signUp, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

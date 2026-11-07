@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CartButton, WishlistButton } from "@/components/GameActions";
+import Price, { DiscountBadge } from "@/components/Price";
+import { saleInfo } from "@/lib/pricing";
 import type { Game } from "@/types/game";
 
 export default function GameCard({
@@ -10,11 +12,7 @@ export default function GameCard({
   game: Game;
   preload?: boolean;
 }) {
-  const hasDiscount =
-    game.discount_price != null && game.discount_price < game.price;
-  const discountPercent = hasDiscount
-    ? Math.round(100 - (game.discount_price! / game.price) * 100)
-    : 0;
+  const sale = saleInfo(game);
 
   return (
     // The actions sit beside the link rather than inside it: a button nested in
@@ -30,10 +28,11 @@ export default function GameCard({
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             preload={preload}
           />
-          {hasDiscount && (
-            <span className="absolute left-3 top-3 rounded-full bg-neon-lime px-3 py-1 text-[11px] font-bold uppercase text-black">
-              -{discountPercent}%
-            </span>
+          {sale && (
+            <DiscountBadge
+              percentOff={sale.percentOff}
+              className="absolute left-3 top-3"
+            />
           )}
         </div>
         <div className="flex flex-1 flex-col gap-2 p-4 pb-3">
@@ -51,20 +50,7 @@ export default function GameCard({
             {game.title}
           </h3>
           <div className="mt-auto flex items-center gap-2 pt-2">
-            {hasDiscount ? (
-              <>
-                <span className="text-sm text-on-surface-variant line-through">
-                  ${game.price.toFixed(2)}
-                </span>
-                <span className="font-bold text-on-surface">
-                  ${game.discount_price!.toFixed(2)}
-                </span>
-              </>
-            ) : (
-              <span className="font-bold text-on-surface">
-                ${game.price.toFixed(2)}
-              </span>
-            )}
+            <Price game={game} />
           </div>
         </div>
       </Link>

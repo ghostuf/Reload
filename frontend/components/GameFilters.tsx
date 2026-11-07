@@ -16,6 +16,7 @@ export default function GameFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
+  const onSale = searchParams.get("on_sale") === "true";
 
   function updateParams(next: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -52,17 +53,32 @@ export default function GameFilters() {
           Search
         </button>
       </form>
-      <select
-        value={searchParams.get("sort") ?? "newest"}
-        onChange={(e) => updateParams({ sort: e.target.value })}
-        className="rounded-2xl border border-white/10 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface outline-none focus:border-electric-blue"
-      >
-        {SORT_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <div className="flex gap-3">
+        <button
+          type="button"
+          aria-pressed={onSale}
+          onClick={() => updateParams({ on_sale: onSale ? null : "true" })}
+          className={`shrink-0 rounded-2xl border px-4 py-3 text-sm font-bold transition-colors ${
+            onSale
+              ? "border-neon-lime bg-neon-lime text-black"
+              : "border-white/10 bg-surface-container-lowest text-on-surface hover:bg-white/10"
+          }`}
+        >
+          On Sale
+        </button>
+        <select
+          value={searchParams.get("sort") ?? "newest"}
+          onChange={(e) => updateParams({ sort: e.target.value })}
+          aria-label="Sort games"
+          className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface outline-none focus:border-electric-blue md:flex-none"
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

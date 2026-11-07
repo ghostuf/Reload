@@ -6,6 +6,7 @@ import { formatDate } from "@/components/OrderView";
 import { useLoad } from "@/hooks/useLoad";
 import { getOrders } from "@/lib/orders";
 import type { OrderSummary } from "@/types/order";
+import ErrorState from "@/components/ErrorState";
 
 export default function OrderHistoryView() {
   return (
@@ -17,12 +18,12 @@ export default function OrderHistoryView() {
 
 function OrderHistory() {
   // getOrders is a module-level function, so its identity is already stable.
-  const { data, loading, error } = useLoad(getOrders);
+  const { data, loading, error, retry } = useLoad(getOrders);
   const orders = data ?? [];
 
   return (
     <main className="flex-1">
-      <section className="mx-auto max-w-[1440px] px-6 pb-8 pt-16 md:px-12 md:pt-24">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-8 pt-16 md:px-12 md:pt-24">
         <p className="text-sm font-semibold uppercase tracking-widest text-electric-blue">
           Your Purchases
         </p>
@@ -36,17 +37,16 @@ function OrderHistory() {
         )}
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-20 md:px-12">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-6 pb-20 md:px-12">
         <div className="max-w-3xl">
           {loading ? (
             <OrderHistorySkeleton />
           ) : error ? (
-            <p
-              role="alert"
-              className="rounded-game-card border border-red-400/30 bg-red-400/5 px-6 py-5 text-sm text-red-400"
-            >
-              {error}
-            </p>
+            <ErrorState
+              title="Couldn't load your orders"
+              message={error}
+              onRetry={retry}
+            />
           ) : orders.length === 0 ? (
             <EmptyHistory />
           ) : (

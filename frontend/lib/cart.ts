@@ -7,7 +7,6 @@ import type {
   WishlistItemResponse,
   WishlistResponse,
 } from "@/types/cart";
-import type { Game } from "@/types/game";
 
 /**
  * Cart and wishlist both live behind the session cookies, so every call goes
@@ -16,15 +15,6 @@ import type { Game } from "@/types/game";
  * can tell a duplicate add (409) or an already-removed item (404) apart from a
  * real failure.
  */
-
-/**
- * effectivePrice is what a game costs in the cart: the discount price whenever
- * one is set, otherwise the list price. It mirrors the API's own rule so the
- * total shown here matches the total the API computes.
- */
-export function effectivePrice(game: Game): number {
-  return game.discount_price ?? game.price;
-}
 
 function addRequest(gameId: number): RequestInit {
   return {
