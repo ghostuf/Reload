@@ -61,22 +61,7 @@ func (s *CheckoutService) Checkout(userID uint) (*models.Order, error) {
 			return fmt.Errorf("loading library: %w", err)
 		}
 
-		var (
-			orderItems []models.OrderItem
-			total      float64
-		)
-		for _, item := range cartItems {
-			if owned[item.GameID] {
-				continue
-			}
-			price := effectivePrice(item.Game)
-			orderItems = append(orderItems, models.OrderItem{
-				GameID:          item.GameID,
-				PriceAtPurchase: price,
-			})
-			total += price
-		}
-
+		orderItems, total := buildOrderItems(cartItems, owned)
 		if len(orderItems) == 0 {
 			return ErrNothingToPurchase
 		}
@@ -122,4 +107,27 @@ func (s *CheckoutService) Checkout(userID uint) (*models.Order, error) {
 		return nil, fmt.Errorf("loading created order: %w", err)
 	}
 	return order, nil
+}
+
+// buildOrderItems turns cart items into order items and their total,
+// skipping anything in owned. Pulled out of the checkout transaction so the
+// pricing rule it applies -- which discount is active, and how an expired
+// one falls back to list price -- can be tested without a database.
+func buildOrderItems(cartItems []models.CartItem, owned map[uint]bool) ([]models.OrderItem, float64) {
+	var (
+		orderItems []models.OrderItem
+		total      float64
+	)
+	for _, item := range cartItems {
+		if owned[item.GameID] {
+			continue
+		}
+		price := effectivePrice(item.Game)
+		orderItems = append(orderItems, models.OrderItem{
+			GameID:          item.GameID,
+			PriceAtPurchase: price,
+		})
+		total += price
+	}
+	return orderItems, total
 }

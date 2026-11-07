@@ -35,8 +35,39 @@ func AutoMigrate(db *gorm.DB) error {
 		&models.Order{},
 		&models.OrderItem{},
 		&models.LibraryItem{},
+		&models.Review{},
 	); err != nil {
 		return fmt.Errorf("running auto-migration: %w", err)
 	}
+
+	if err := enableGameSearch(db); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// enableGameSearch adds a generated tsvector column over a game's title and
+// description, weighted so a title match ranks above a description match,
+// plus a GIN index over it. A generated column is not something GORM's
+// struct tags can express, so this runs once as raw SQL rather than through
+// AutoMigrate; both statements are idempotent so re-running it on every
+// startup is harmless.
+func enableGameSearch(db *gorm.DB) error {
+	statements := []string{
+		`ALTER TABLE games ADD COLUMN IF NOT EXISTS search_vector tsvector
+			GENERATED ALWAYS AS (
+				setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
+				setweight(to_tsvector('english', coalesce(description, '')), 'B')
+			) STORED`,
+		`CREATE INDEX IF NOT EXISTS idx_games_search_vector ON games USING GIN (search_vector)`,
+	}
+
+	for _, stmt := range statements {
+		if err := db.Exec(stmt).Error; err != nil {
+			return fmt.Errorf("enabling game search index: %w", err)
+		}
+	}
+
 	return nil
 }

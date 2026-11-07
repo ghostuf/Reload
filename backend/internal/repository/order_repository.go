@@ -42,9 +42,15 @@ func (r *OrderRepository) Create(order *models.Order) error {
 // the order does not exist and when it belongs to someone else, so callers
 // can't distinguish the two -- which is what keeps this from leaking whether
 // an order id exists on another account.
+//
+// The game preload is Unscoped so a receipt still shows what was bought even
+// after an admin soft-deletes that game -- the whole point of a soft delete
+// over a real one.
 func (r *OrderRepository) GetByID(userID, orderID uint) (*models.Order, error) {
 	var order models.Order
-	err := r.db.Preload("Items.Game").
+	err := r.db.Preload("Items.Game", func(db *gorm.DB) *gorm.DB {
+		return db.Unscoped()
+	}).
 		Where("user_id = ?", userID).
 		First(&order, orderID).Error
 	if err != nil {

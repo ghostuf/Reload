@@ -16,10 +16,14 @@ func NewLibraryRepository(db *gorm.DB) *LibraryRepository {
 }
 
 // ListByUser returns a user's owned games with full game details preloaded,
-// most recently acquired first.
+// most recently acquired first. The Game preload is Unscoped so a game an
+// admin has since soft-deleted still shows up as owned rather than vanishing
+// from a library entry that is otherwise still valid.
 func (r *LibraryRepository) ListByUser(userID uint) ([]models.LibraryItem, error) {
 	var items []models.LibraryItem
-	err := r.db.Preload("Game").
+	err := r.db.Preload("Game", func(db *gorm.DB) *gorm.DB {
+		return db.Unscoped()
+	}).
 		Preload("Game.Genres").
 		Where("user_id = ?", userID).
 		Order("acquired_at DESC").
@@ -54,4 +58,18 @@ func (r *LibraryRepository) CreateMany(items []models.LibraryItem) error {
 		return nil
 	}
 	return r.db.Create(&items).Error
+}
+
+// HasGame reports whether a user owns a specific game. Reviews check this
+// before accepting one, so it is a single count rather than loading the
+// user's whole library to look for one game_id.
+func (r *LibraryRepository) HasGame(userID, gameID uint) (bool, error) {
+	var count int64
+	err := r.db.Model(&models.LibraryItem{}).
+		Where("user_id = ? AND game_id = ?", userID, gameID).
+		Count(&count).Error
+	if err != nil {
+		return false, fmt.Errorf("checking library ownership: %w", err)
+	}
+	return count > 0, nil
 }

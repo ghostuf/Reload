@@ -78,12 +78,3 @@ func (s *CartService) AddToCart(userID, gameID uint) (*models.CartItem, error) {
 func (s *CartService) RemoveFromCart(userID, gameID uint) error {
 	return s.cart.Delete(userID, gameID)
 }
-
-// effectivePrice is what a customer actually pays for a game: the discount
-// price when one is set, otherwise the list price.
-func effectivePrice(game models.Game) float64 {
-	if game.DiscountPrice != nil {
-		return *game.DiscountPrice
-	}
-	return game.Price
-}

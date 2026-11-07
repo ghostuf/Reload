@@ -35,3 +35,19 @@ func (r *UserRepository) GetByID(id uint) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+// GetRole returns a user's role without loading the rest of the row. AdminOnly
+// calls this on every admin request, so it stays a single narrow column read.
+func (r *UserRepository) GetRole(id uint) (models.UserRole, error) {
+	var user models.User
+	if err := r.db.Select("role").First(&user, id).Error; err != nil {
+		return "", err
+	}
+	return user.Role, nil
+}
+
+// UpdateRole sets a user's role directly, bypassing Save so it never touches
+// the password hash or any other column.
+func (r *UserRepository) UpdateRole(id uint, role models.UserRole) error {
+	return r.db.Model(&models.User{}).Where("id = ?", id).Update("role", role).Error
+}

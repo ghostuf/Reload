@@ -57,14 +57,16 @@ func main() {
 		Secure: cfg.CookieSecure,
 	}
 
-	gameRepo := repository.NewGameRepository(db)
-	gameService := services.NewGameService(gameRepo)
-	gameHandler := handlers.NewGameHandler(gameService)
-
 	userRepo := repository.NewUserRepository(db)
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 	authService := services.NewAuthService(userRepo, refreshTokenRepo, tokenManager)
 	authHandler := handlers.NewAuthHandler(authService, cookieOpts)
+
+	reviewRepo := repository.NewReviewRepository(db)
+
+	gameRepo := repository.NewGameRepository(db)
+	gameService := services.NewGameService(gameRepo, reviewRepo)
+	gameHandler := handlers.NewGameHandler(gameService)
 
 	cartRepo := repository.NewCartRepository(db)
 	cartService := services.NewCartService(cartRepo, gameRepo)
@@ -84,6 +86,9 @@ func main() {
 	libraryRepo := repository.NewLibraryRepository(db)
 	libraryService := services.NewLibraryService(libraryRepo)
 	libraryHandler := handlers.NewLibraryHandler(libraryService)
+
+	reviewService := services.NewReviewService(reviewRepo, libraryRepo, gameRepo, userRepo)
+	reviewHandler := handlers.NewReviewHandler(reviewService)
 
 	router := gin.Default()
 	router.Use(corsMiddleware(cfg.FrontendOrigin))
@@ -129,6 +134,18 @@ func main() {
 	}
 
 	router.GET("/library", auth.RequireAuth(tokenManager), libraryHandler.GetLibrary)
+
+	router.GET("/games/:id/reviews", reviewHandler.ListReviews)
+	router.POST("/games/:id/reviews", auth.RequireAuth(tokenManager), reviewHandler.CreateReview)
+	router.PUT("/reviews/:id", auth.RequireAuth(tokenManager), reviewHandler.UpdateReview)
+	router.DELETE("/reviews/:id", auth.RequireAuth(tokenManager), reviewHandler.DeleteReview)
+
+	adminRoutes := router.Group("/admin", auth.RequireAuth(tokenManager), auth.AdminOnly(userRepo))
+	{
+		adminRoutes.POST("/games", gameHandler.CreateGame)
+		adminRoutes.PUT("/games/:id", gameHandler.UpdateGame)
+		adminRoutes.DELETE("/games/:id", gameHandler.DeleteGame)
+	}
 
 	log.Printf("starting reload api on port %s", cfg.Port)
 	if err := router.Run(":" + cfg.Port); err != nil {
