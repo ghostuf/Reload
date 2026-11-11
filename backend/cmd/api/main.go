@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/ghostuf/reload/internal/auth"
 	"github.com/ghostuf/reload/internal/config"
@@ -11,6 +14,16 @@ import (
 	"github.com/ghostuf/reload/internal/services"
 	"github.com/gin-gonic/gin"
 )
+
+// healthcheckTimeout bounds how long the health endpoint waits on the
+// database before reporting unhealthy, so a stuck connection pool fails the
+// check instead of hanging it.
+const healthcheckTimeout = 2 * time.Second
+
+// selfCheckFlag is how the container's HEALTHCHECK instruction asks this
+// same binary to check itself. A distroless final image has no shell and no
+// curl, so there is nothing else that could run a healthcheck command.
+const selfCheckFlag = "-healthcheck"
 
 // corsMiddleware allows credentialed requests from a single known origin.
 // Browsers reject cookies on a response with "Access-Control-Allow-Origin: *",
@@ -38,6 +51,11 @@ func corsMiddleware(allowedOrigin string) gin.HandlerFunc {
 
 func main() {
 	cfg := config.Load()
+
+	if len(os.Args) > 1 && os.Args[1] == selfCheckFlag {
+		os.Exit(selfCheck(cfg.Port))
+	}
+
 	if err := cfg.Validate(); err != nil {
 		log.Fatalf("invalid configuration: %v", err)
 	}
@@ -53,8 +71,9 @@ func main() {
 
 	tokenManager := auth.NewTokenManager(cfg.JWTAccessSecret)
 	cookieOpts := auth.CookieOptions{
-		Domain: cfg.CookieDomain,
-		Secure: cfg.CookieSecure,
+		Domain:   cfg.CookieDomain,
+		Secure:   cfg.CookieSecure,
+		SameSite: auth.ParseSameSite(cfg.CookieSameSite),
 	}
 
 	userRepo := repository.NewUserRepository(db)
@@ -91,9 +110,28 @@ func main() {
 	reviewHandler := handlers.NewReviewHandler(reviewService)
 
 	router := gin.Default()
+	// There is no reverse proxy chain to trust here -- the deployments this
+	// runs behind (Fly, Render, or compose's own network) sit directly in
+	// front of it, so trusting arbitrary X-Forwarded-For headers would only
+	// let a client spoof its own address.
+	router.SetTrustedProxies(nil)
 	router.Use(corsMiddleware(cfg.FrontendOrigin))
 
 	router.GET("/health", func(c *gin.Context) {
+		sqlDB, err := db.DB()
+		if err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "error": "database unavailable"})
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(c.Request.Context(), healthcheckTimeout)
+		defer cancel()
+
+		if err := sqlDB.PingContext(ctx); err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "error": "database unreachable"})
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
@@ -151,4 +189,24 @@ func main() {
 	if err := router.Run(":" + cfg.Port); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
+}
+
+// selfCheck is what `api -healthcheck` runs: a plain GET against this same
+// process's own /health endpoint, returning the process exit code Docker's
+// HEALTHCHECK should see. It talks to the server over loopback rather than
+// sharing any code with it, so it exercises exactly what an external caller
+// would see, including the port actually being open.
+func selfCheck(port string) int {
+	client := http.Client{Timeout: healthcheckTimeout}
+
+	resp, err := client.Get("http://127.0.0.1:" + port + "/health")
+	if err != nil {
+		return 1
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return 1
+	}
+	return 0
 }

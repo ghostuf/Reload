@@ -35,7 +35,7 @@ func cookiesByName(t *testing.T, recorder *httptest.ResponseRecorder) map[string
 func TestSetAuthCookies(t *testing.T) {
 	c, recorder := newTestContext()
 
-	SetAuthCookies(c, CookieOptions{Domain: "example.com", Secure: true}, "access-value", "refresh-value")
+	SetAuthCookies(c, CookieOptions{Domain: "example.com", Secure: true, SameSite: http.SameSiteLaxMode}, "access-value", "refresh-value")
 
 	cookies := cookiesByName(t, recorder)
 

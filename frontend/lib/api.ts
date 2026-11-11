@@ -1,7 +1,31 @@
 import type { GameResponse, GamesResponse } from "@/types/game";
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+/**
+ * The browser and the Next.js server never reach the API at the same
+ * address once this runs in Docker: a browser needs the publicly reachable
+ * URL (NEXT_PUBLIC_API_URL, inlined into the client bundle at build time),
+ * while code running inside the frontend container -- a Server Component
+ * doing its own fetch -- has to use the compose network's service name
+ * instead (e.g. http://backend:8080), since "localhost" inside that
+ * container is the frontend itself, not the backend.
+ *
+ * INTERNAL_API_URL deliberately has no NEXT_PUBLIC_ prefix so Next never
+ * inlines it into the client bundle; it is read fresh from the real
+ * environment at request time, which is exactly what a server-only variable
+ * needs in standalone output.
+ */
+function resolveApiBaseUrl(): string {
+  if (typeof window === "undefined") {
+    return (
+      process.env.INTERNAL_API_URL ??
+      process.env.NEXT_PUBLIC_API_URL ??
+      "http://localhost:8080"
+    );
+  }
+  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 export class ApiError extends Error {
   readonly status: number;

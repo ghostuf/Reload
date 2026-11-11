@@ -4,16 +4,55 @@ services:
     container_name: reload-postgres
 
     environment:
-      POSTGRES_USER: reload
-      POSTGRES_PASSWORD: reload
-      POSTGRES_DB: reloaddb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
 
+    # Published to the host for local development only (connecting a GUI
+    # client, running `go run ./cmd/seed` straight from the host, etc).
+    # A real deployment has no reason to expose Postgres beyond the compose
+    # network the backend already reaches it over.
     ports:
       - "5432:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  backend:
+    build:
+      context: ./backend
+    container_name: reload-backend
+    env_file: .env
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # The image's own HEALTHCHECK (cmd/api's -healthcheck self-check) is what
+    # backs this condition; nothing to redeclare here.
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Inlined into the browser bundle at build time -- see lib/api.ts --
+        # so it has to be a build arg, not just a runtime environment entry.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    container_name: reload-frontend
+    environment:
+      INTERNAL_API_URL: ${INTERNAL_API_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:

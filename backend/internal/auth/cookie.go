@@ -20,11 +20,30 @@ const (
 	refreshCookiePath = "/auth"
 )
 
-// CookieOptions controls how auth cookies are written. Secure should be true in
-// any environment served over HTTPS.
+// CookieOptions controls how auth cookies are written. Secure should be true
+// in any environment served over HTTPS, and SameSite should be
+// http.SameSiteNoneMode (alongside Secure) whenever the frontend and backend
+// are on different domains -- otherwise the browser never attaches the
+// cookie to the cross-site requests the frontend makes.
 type CookieOptions struct {
-	Domain string
-	Secure bool
+	Domain   string
+	Secure   bool
+	SameSite http.SameSite
+}
+
+// ParseSameSite maps a config string onto http's SameSite enum. It defaults
+// to Lax for anything unrecognised; config.Config.Validate is what actually
+// rejects a bad value at startup, so by the time this runs s is guaranteed to
+// be "lax", "strict", or "none".
+func ParseSameSite(s string) http.SameSite {
+	switch s {
+	case "strict":
+		return http.SameSiteStrictMode
+	case "none":
+		return http.SameSiteNoneMode
+	default:
+		return http.SameSiteLaxMode
+	}
 }
 
 // SetAuthCookies writes both auth tokens as httpOnly cookies.
@@ -65,6 +84,6 @@ func ReadAccessCookie(c *gin.Context) (string, bool) {
 }
 
 func setCookie(c *gin.Context, name, value string, maxAge int, path string, opts CookieOptions) {
-	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetSameSite(opts.SameSite)
 	c.SetCookie(name, value, maxAge, path, opts.Domain, opts.Secure, true)
 }

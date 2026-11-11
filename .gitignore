@@ -1,0 +1,3 @@
+# Compose reads this for every service's config; never commit the real one.
+.env
+!.env.example
