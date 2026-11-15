@@ -26,6 +26,30 @@ export function formatDate(iso: string): string {
   });
 }
 
+const STATUS_STYLES: Record<string, string> = {
+  completed: "border-neon-lime/40 bg-neon-lime/10 text-neon-lime",
+  pending: "border-amber-400/40 bg-amber-400/10 text-amber-400",
+  failed: "border-red-400/40 bg-red-400/10 text-red-400",
+  cancelled: "border-white/15 bg-white/5 text-on-surface-variant",
+};
+
+/**
+ * OrderStatusBadge is shared between the receipt and the history list, so
+ * "pending", "failed", and "cancelled" -- which only an eSewa-checkout order
+ * can ever actually be -- all read consistently wherever an order's status
+ * shows up.
+ */
+export function OrderStatusBadge({ status }: { status: string }) {
+  const style = STATUS_STYLES[status] ?? STATUS_STYLES.cancelled;
+  return (
+    <span
+      className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${style}`}
+    >
+      {status}
+    </span>
+  );
+}
+
 function OrderReceipt({ orderId }: { orderId: string }) {
   const load = useCallback(() => getOrder(orderId), [orderId]);
   const { data: order, loading, error, retry } = useLoad(load);
@@ -70,10 +94,23 @@ function OrderReceipt({ orderId }: { orderId: string }) {
             <div className="rounded-[24px] border border-white/10 bg-surface-container-low/80 p-6 backdrop-blur-xl md:p-8">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-5">
                 <h2 className="text-lg font-bold text-on-surface">Receipt</h2>
-                <span className="rounded-full border border-neon-lime/40 bg-neon-lime/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-neon-lime">
-                  {order.status}
-                </span>
+                <OrderStatusBadge status={order.status} />
               </div>
+
+              {order.payment && (
+                <p className="mt-3 text-xs text-on-surface-variant">
+                  Paid via eSewa
+                  {order.payment.provider_ref_id && (
+                    <>
+                      {" "}
+                      · Ref{" "}
+                      <span className="font-mono text-on-surface">
+                        {order.payment.provider_ref_id}
+                      </span>
+                    </>
+                  )}
+                </p>
+              )}
 
               <ul className="flex flex-col divide-y divide-white/5">
                 {items.map((item) => (

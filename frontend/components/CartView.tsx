@@ -8,7 +8,13 @@ import GameListItem, { GameListSkeleton } from "@/components/GameListItem";
 import RequireAuth from "@/components/RequireAuth";
 import { useCart } from "@/hooks/useCart";
 import { useLibrary } from "@/hooks/useLibrary";
+import { useLoad } from "@/hooks/useLoad";
 import { checkout } from "@/lib/orders";
+import {
+  getPaymentMode,
+  initiateEsewaPayment,
+  submitEsewaForm,
+} from "@/lib/esewa";
 import ErrorState from "@/components/ErrorState";
 
 export default function CartView() {
@@ -85,6 +91,7 @@ function CartContents() {
                 </div>
               </dl>
               <CheckoutButton />
+              <EsewaSandboxNote />
               <Link
                 href="/"
                 className="mt-4 block text-center text-sm font-semibold text-on-surface-variant transition-colors hover:text-on-surface"
@@ -100,33 +107,54 @@ function CartContents() {
 }
 
 /**
- * CheckoutButton buys everything in the cart and sends the user to the receipt.
+ * CheckoutButton buys everything in the cart. Which flow that means depends
+ * on GET /config/payment: the mock flow completes immediately and goes
+ * straight to the receipt, while the eSewa flow leaves the app entirely --
+ * a real cross-origin form POST, not a fetch -- so the button's pending
+ * state becomes "Redirecting to eSewa…" rather than resolving on its own.
  *
- * It stays disabled from the moment it succeeds until the navigation lands:
- * the cart it would charge for is gone by then, so re-enabling it would only
- * offer the user a second click that could not work.
+ * Either way it stays disabled from the moment it succeeds until the
+ * navigation lands: re-enabling it would only offer a second click that
+ * could not work.
  */
 function CheckoutButton() {
   const cart = useCart();
   const library = useLibrary();
   const router = useRouter();
+  const { data: mode, loading: modeLoading } = useLoad(getPaymentMode);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  async function handleMockCheckout() {
+    const order = await checkout();
+    // The API emptied the cart inside the checkout transaction; clearing it
+    // here keeps the navbar badge from showing a cart that no longer exists.
+    cart.clearCart();
+    // The games just bought are in the library now. Re-reading it is what
+    // makes them show as owned without a reload; a failure here only costs
+    // a stale library, so it must not derail a purchase that succeeded.
+    library.refresh().catch(() => {});
+    router.push(`/orders/${order.id}`);
+  }
+
+  async function handleEsewaCheckout() {
+    const { form, formUrl } = await initiateEsewaPayment();
+    // The cart and library are deliberately untouched here -- they only
+    // change once /checkout/esewa/success verifies the payment actually
+    // went through. This call leaves the SPA for eSewa's own page.
+    submitEsewaForm(formUrl, form);
+  }
 
   async function handleCheckout() {
     setPending(true);
     setError(null);
 
     try {
-      const order = await checkout();
-      // The API emptied the cart inside the checkout transaction; clearing it
-      // here keeps the navbar badge from showing a cart that no longer exists.
-      cart.clearCart();
-      // The games just bought are in the library now. Re-reading it is what
-      // makes them show as owned without a reload; a failure here only costs
-      // a stale library, so it must not derail a purchase that succeeded.
-      library.refresh().catch(() => {});
-      router.push(`/orders/${order.id}`);
+      if (mode === "esewa") {
+        await handleEsewaCheckout();
+      } else {
+        await handleMockCheckout();
+      }
     } catch (err) {
       // An empty cart or a cart of already-owned games arrives here as the
       // API's own message, which says which of the two it was.
@@ -139,16 +167,24 @@ function CheckoutButton() {
     }
   }
 
+  const label = pending
+    ? mode === "esewa"
+      ? "Redirecting to eSewa…"
+      : "Processing…"
+    : error
+      ? "Try Again"
+      : "Checkout";
+
   return (
     <div className="mt-6 flex flex-col gap-3">
       <button
         type="button"
         onClick={handleCheckout}
-        disabled={pending}
+        disabled={pending || modeLoading}
         className="flex items-center justify-center gap-2 rounded-xl bg-electric-blue px-6 py-3 text-base font-bold text-white transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
       >
         {pending && <Spinner />}
-        {pending ? "Processing…" : error ? "Try Again" : "Checkout"}
+        {label}
       </button>
       {error && (
         <p
@@ -158,6 +194,29 @@ function CheckoutButton() {
           {error}
         </p>
       )}
+    </div>
+  );
+}
+
+/**
+ * EsewaSandboxNote surfaces eSewa's own published test wallet credentials
+ * right on the cart page, so a class demo never has to go look them up
+ * mid-flow. Silent outside eSewa mode, since there is nothing to log into
+ * for the mock flow.
+ */
+function EsewaSandboxNote() {
+  const { data: mode } = useLoad(getPaymentMode);
+  if (mode !== "esewa") return null;
+
+  return (
+    <div className="mt-4 rounded-xl border border-electric-blue/30 bg-electric-blue/5 px-4 py-3 text-xs text-on-surface-variant">
+      <p className="font-semibold text-on-surface">eSewa sandbox mode</p>
+      <p className="mt-1">
+        Log in with eSewa ID <code className="text-on-surface">9806800001</code>{" "}
+        (through <code className="text-on-surface">...005</code>), password{" "}
+        <code className="text-on-surface">Nepal@123</code>, token{" "}
+        <code className="text-on-surface">123456</code>.
+      </p>
     </div>
   );
 }

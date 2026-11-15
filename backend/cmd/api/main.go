@@ -96,7 +96,17 @@ func main() {
 	wishlistHandler := handlers.NewWishlistHandler(wishlistService)
 
 	checkoutService := services.NewCheckoutService(db)
-	checkoutHandler := handlers.NewCheckoutHandler(checkoutService)
+	checkoutHandler := handlers.NewCheckoutHandler(checkoutService, cfg.PaymentMode)
+
+	paymentRepo := repository.NewPaymentRepository(db)
+	esewaClient := services.NewEsewaClient(cfg.ESewaStatusURL)
+	esewaCheckoutService := services.NewEsewaCheckoutService(db, paymentRepo, esewaClient, services.EsewaConfig{
+		SecretKey:   cfg.ESewaSecretKey,
+		ProductCode: cfg.ESewaProductCode,
+		FrontendURL: cfg.FrontendURL,
+		FormURL:     cfg.ESewaFormURL,
+	})
+	esewaHandler := handlers.NewEsewaHandler(esewaCheckoutService, cfg.PaymentMode)
 
 	orderRepo := repository.NewOrderRepository(db)
 	orderService := services.NewOrderService(orderRepo)
@@ -164,6 +174,17 @@ func main() {
 	}
 
 	router.POST("/checkout", auth.RequireAuth(tokenManager), checkoutHandler.Checkout)
+
+	router.GET("/config/payment", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"data": gin.H{"mode": cfg.PaymentMode}})
+	})
+
+	esewaRoutes := router.Group("/checkout/esewa", auth.RequireAuth(tokenManager))
+	{
+		esewaRoutes.POST("/initiate", esewaHandler.Initiate)
+		esewaRoutes.POST("/verify", esewaHandler.Verify)
+		esewaRoutes.POST("/failure", esewaHandler.Failure)
+	}
 
 	orderRoutes := router.Group("/orders", auth.RequireAuth(tokenManager))
 	{

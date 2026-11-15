@@ -5,6 +5,7 @@ import (
 
 	"github.com/ghostuf/reload/internal/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type LibraryRepository struct {
@@ -58,6 +59,24 @@ func (r *LibraryRepository) CreateMany(items []models.LibraryItem) error {
 		return nil
 	}
 	return r.db.Create(&items).Error
+}
+
+// CreateManyIgnoringConflicts grants library access for the given items,
+// silently skipping any that violate the (user_id, game_id) unique
+// constraint rather than failing the whole call. eSewa verification uses
+// this instead of CreateMany: a payment confirmed after the user somehow
+// already owns one of the games (a race with another session, say) must
+// still grant the rest rather than roll the entire transaction back over
+// one already-owned item.
+func (r *LibraryRepository) CreateManyIgnoringConflicts(items []models.LibraryItem) error {
+	if len(items) == 0 {
+		return nil
+	}
+	err := r.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&items).Error
+	if err != nil {
+		return fmt.Errorf("granting library access: %w", err)
+	}
+	return nil
 }
 
 // HasGame reports whether a user owns a specific game. Reviews check this

@@ -29,6 +29,9 @@ services:
     build:
       context: ./backend
     container_name: reload-backend
+    # Every backend variable, including the eSewa ones, flows through from
+    # the single root .env file this way -- nothing here needs to enumerate
+    # them individually.
     env_file: .env
     ports:
       - "${PORT:-8080}:${PORT:-8080}"

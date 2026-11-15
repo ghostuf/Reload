@@ -13,12 +13,30 @@ export type OrderItem = {
   price_at_purchase: number;
 };
 
+/**
+ * Payment is one payment attempt against an order -- present only for
+ * eSewa-checkout orders; the mock checkout never creates one, so this is
+ * absent on those.
+ */
+export type Payment = {
+  id: number;
+  order_id: number;
+  provider: string;
+  transaction_uuid: string;
+  amount: number;
+  status: string;
+  provider_ref_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Order = {
   id: number;
   user_id: number;
   total_price: number;
   status: string;
   items?: OrderItem[];
+  payment?: Payment | null;
   created_at: string;
 };
 
@@ -30,6 +48,10 @@ export type OrderSummary = {
   id: number;
   total_price: number;
   item_count: number;
+  status: string;
+  payment_provider?: string;
+  payment_status?: string;
+  provider_ref_id?: string | null;
   created_at: string;
 };
 

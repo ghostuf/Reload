@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import RequireAuth from "@/components/RequireAuth";
-import { formatDate } from "@/components/OrderView";
+import { formatDate, OrderStatusBadge } from "@/components/OrderView";
 import { useLoad } from "@/hooks/useLoad";
 import { getOrders } from "@/lib/orders";
 import type { OrderSummary } from "@/types/order";
@@ -70,12 +70,22 @@ function OrderRow({ order }: { order: OrderSummary }) {
         className="group flex flex-wrap items-center justify-between gap-4 rounded-game-card border border-white/5 bg-surface-container-low p-4 transition-colors hover:border-white/20 hover:bg-surface-container sm:p-5"
       >
         <div className="min-w-0">
-          <p className="font-bold text-on-surface transition-colors group-hover:text-electric-blue">
-            Order #{order.id}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-bold text-on-surface transition-colors group-hover:text-electric-blue">
+              Order #{order.id}
+            </p>
+            <OrderStatusBadge status={order.status} />
+          </div>
           <p className="mt-1 text-sm text-on-surface-variant">
             {formatDate(order.created_at)} · {order.item_count}{" "}
             {order.item_count === 1 ? "game" : "games"}
+            {order.provider_ref_id && (
+              <>
+                {" "}
+                · Ref{" "}
+                <span className="font-mono">{order.provider_ref_id}</span>
+              </>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-4">

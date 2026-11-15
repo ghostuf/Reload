@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ghostuf/reload/internal/auth"
+	"github.com/ghostuf/reload/internal/models"
 	"github.com/ghostuf/reload/internal/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -21,12 +22,40 @@ func NewOrderHandler(service *services.OrderService) *OrderHandler {
 }
 
 // orderSummary is what GET /orders returns per order: enough to render a
-// history list without shipping every line item's full game details.
+// history list -- including payment status and eSewa's own reference code,
+// when there is a payment at all -- without shipping every line item's
+// full game details.
 type orderSummary struct {
-	ID         uint      `json:"id"`
-	TotalPrice float64   `json:"total_price"`
-	ItemCount  int       `json:"item_count"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID              uint      `json:"id"`
+	TotalPrice      float64   `json:"total_price"`
+	ItemCount       int       `json:"item_count"`
+	Status          string    `json:"status"`
+	PaymentProvider *string   `json:"payment_provider,omitempty"`
+	PaymentStatus   *string   `json:"payment_status,omitempty"`
+	ProviderRefID   *string   `json:"provider_ref_id,omitempty"`
+	CreatedAt       time.Time `json:"created_at"`
+}
+
+// toOrderSummary projects an order (and its payment, if the mock checkout
+// didn't skip creating one) onto the lighter shape the history list needs.
+func toOrderSummary(order models.Order) orderSummary {
+	summary := orderSummary{
+		ID:         order.ID,
+		TotalPrice: order.TotalPrice,
+		ItemCount:  len(order.Items),
+		Status:     string(order.Status),
+		CreatedAt:  order.CreatedAt,
+	}
+
+	if order.Payment != nil {
+		provider := string(order.Payment.Provider)
+		status := string(order.Payment.Status)
+		summary.PaymentProvider = &provider
+		summary.PaymentStatus = &status
+		summary.ProviderRefID = order.Payment.ProviderRefID
+	}
+
+	return summary
 }
 
 func (h *OrderHandler) ListOrders(c *gin.Context) {
@@ -44,12 +73,7 @@ func (h *OrderHandler) ListOrders(c *gin.Context) {
 
 	summaries := make([]orderSummary, len(orders))
 	for i, order := range orders {
-		summaries[i] = orderSummary{
-			ID:         order.ID,
-			TotalPrice: order.TotalPrice,
-			ItemCount:  len(order.Items),
-			CreatedAt:  order.CreatedAt,
-		}
+		summaries[i] = toOrderSummary(order)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": summaries})

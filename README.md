@@ -86,6 +86,13 @@ list with placeholder values; `.env` itself is gitignored.
 | `COOKIE_DOMAIN` | backend | Leave empty to scope cookies to the API's own host. Set to a shared apex domain only if frontend and backend are both under it |
 | `COOKIE_SECURE` | backend | Must be `true` for any HTTPS deployment, and whenever `COOKIE_SAMESITE=none` |
 | `COOKIE_SAMESITE` | backend | `lax` (default, local HTTP dev), `strict`, or `none` (cross-domain production — see Live deploy notes) |
+| `FRONTEND_URL` | backend | The frontend's public URL, used to build the `success_url`/`failure_url` eSewa redirects back to. Usually the same value as `FRONTEND_ORIGIN` — kept separate because one is a CORS match and the other is a redirect target |
+| `PAYMENT_MODE` | backend | `mock` or `esewa`. Defaults to `esewa` whenever `ESEWA_SECRET_KEY` is set (which it is, by default) — set to `mock` to fall back to the no-payment-processor flow if the sandbox is unreachable during a demo |
+| `ESEWA_ENV` | backend | `sandbox` (default) or `production`. Only picks the default form/status URLs below when `ESEWA_FORM_URL`/`ESEWA_STATUS_URL` are left unset |
+| `ESEWA_PRODUCT_CODE` | backend | Merchant code eSewa issues. Defaults to eSewa's own fixed UAT code, `EPAYTEST` |
+| `ESEWA_SECRET_KEY` | backend | Signs outgoing requests and verifies eSewa's responses. **Never sent to the frontend.** Defaults to eSewa's own published sandbox key — a production deployment must replace it with the real merchant secret eSewa issues |
+| `ESEWA_FORM_URL` | backend | Where the frontend's hidden form POSTs to. Defaults based on `ESEWA_ENV` |
+| `ESEWA_STATUS_URL` | backend | eSewa's transaction status-check API, called server-to-server to independently confirm a payment. Defaults based on `ESEWA_ENV` |
 | `NEXT_PUBLIC_API_URL` | frontend (build-time) | The API's address **from the browser's point of view**. Baked into the client bundle at build time |
 | `INTERNAL_API_URL` | frontend (runtime) | The API's address **from inside the frontend container**, used only by Server Components doing their own fetch. Inside Compose this is `http://backend:8080` — `localhost` there would mean the frontend container itself |
 
@@ -110,14 +117,68 @@ cookie (`RequireAuth`); 🛡️ additionally require the `admin` role.
 | DELETE | `/cart/:game_id` | 🔒 |
 | GET/POST | `/wishlist` | 🔒 |
 | DELETE | `/wishlist/:game_id` | 🔒 |
-| POST | `/checkout` | 🔒 turns the cart into an order and library entries |
-| GET | `/orders` | 🔒 history, newest first |
-| GET | `/orders/:id` | 🔒 full receipt |
+| GET | `/config/payment` | Reports the active `mode` (`mock` or `esewa`) so the frontend knows which checkout flow to use |
+| POST | `/checkout` | 🔒 the mock flow: turns the cart into a *completed* order and library entries immediately. Disabled (400) unless `PAYMENT_MODE=mock` |
+| POST | `/checkout/esewa/initiate` | 🔒 prices the cart server-side, creates a *pending* order and payment, returns the signed form fields to POST to eSewa. Disabled unless `PAYMENT_MODE=esewa` |
+| POST | `/checkout/esewa/verify` | 🔒 body `{data}` — the base64 payload from `success_url`. Verifies the signature, independently re-confirms with eSewa, then completes the order. Idempotent |
+| POST | `/checkout/esewa/failure` | 🔒 body `{transaction_uuid}` — marks a pending payment cancelled; the cart is left untouched |
+| GET | `/orders` | 🔒 history, newest first — includes `status`, and `payment_status`/`provider_ref_id` for eSewa orders |
+| GET | `/orders/:id` | 🔒 full receipt — includes the `payment` object for eSewa orders |
 | GET | `/library` | 🔒 owned games |
 | PUT/DELETE | `/reviews/:id` | 🔒 author only (admins can additionally delete any review) |
 | POST | `/admin/games` | 🛡️ create a game, its genres, and gallery images |
 | PUT | `/admin/games/:id` | 🛡️ full replace, including discounts |
 | DELETE | `/admin/games/:id` | 🛡️ soft delete — existing orders/library entries keep working |
+
+## Payments (eSewa ePay v2)
+
+Checkout goes through [eSewa](https://developer.esewa.com.np/pages/Epay)'s
+ePay v2 integration, in sandbox mode by default:
+
+1. **Initiate** — `/cart`'s Checkout button calls `POST
+   /checkout/esewa/initiate`. The backend prices the cart itself (never
+   trusting a client-supplied amount), creates a *pending* order and
+   payment, and returns a signed set of form fields. The frontend builds a
+   hidden form from them and submits it — a real browser POST, leaving the
+   app entirely for eSewa's own login page.
+2. **Pay** — log in with one of eSewa's own published sandbox wallets:
+
+   | eSewa ID | Password | MPIN | Token |
+   |---|---|---|---|
+   | `9806800001` (through `...005`) | `Nepal@123` | `1122` | `123456` |
+
+   (The cart page shows this same note automatically whenever `PAYMENT_MODE=esewa`.)
+3. **Verify** — eSewa redirects to `/checkout/esewa/success?data=<base64>`.
+   That page calls `POST /checkout/esewa/verify`, which:
+   - recomputes the response's HMAC-SHA256 signature from its own
+     `signed_field_names` and compares it in constant time;
+   - **independently** calls eSewa's transaction status-check API rather
+     than trusting the callback alone — only `COMPLETE` counts, and a
+     completed-but-wrong-amount response is treated as the fraud case
+     eSewa's own docs call out, not honoured;
+   - on success, marks the order and payment completed, grants the
+     library, and clears the cart, all in one transaction;
+   - is idempotent — refreshing the success page re-sends the same
+     verified data and gets the same order back without re-granting
+     anything.
+4. **Cancel/failure** — landing on `/checkout/esewa/failure` (eSewa doesn't
+   document anything appended to this URL, so the backend embeds
+   `transaction_uuid` in its own query string beforehand) marks the pending
+   payment cancelled and leaves the cart untouched, so the user can retry.
+5. **Abandoned sessions** — a pending order older than about 30 minutes is
+   lazily cancelled the next time a user's orders are read; there's no
+   background job.
+
+Set `PAYMENT_MODE=mock` (in `.env`) to fall back to the no-payment-processor
+`POST /checkout` flow instantly, if the sandbox is unreachable mid-demo.
+
+> **Currency note:** eSewa only moves Nepali Rupees, and every amount this
+> integration sends and checks is implicitly NPR. The existing storefront UI
+> (`lib/pricing.ts`'s `formatPrice`, plus a few components that format prices
+> inline) prints a `$` sign everywhere, inherited from before this feature
+> existed. That's a pre-existing display bug this change didn't introduce
+> and didn't fix — flagging it rather than changing currency formatting
+> across the whole site, which is out of scope here.
 
 ## Demo script
 
@@ -126,15 +187,21 @@ A walkthrough to run in class, end to end:
 1. **Browse** the storefront at `/` — search, filter by genre, sort.
 2. **Register** a new account.
 3. Open a game, **add it to the cart**.
-4. Go to `/cart` and **check out** — note the cart badge clear and the
-   receipt that follows.
-5. Visit `/library` — the purchased game is there.
-6. Back on the game's page, **leave a review** (this only works because you
+4. Go to `/cart` and **check out** — note the sandbox credentials box, the
+   "Redirecting to eSewa…" state, and the real redirect to eSewa's login
+   page. Log in with one of the sandbox wallets above.
+5. Land back on `/checkout/esewa/success`, watch it verify, and land on the
+   receipt — note the payment status and eSewa reference code.
+6. Visit `/library` — the purchased game is there.
+7. Back on the game's page, **leave a review** (this only works because you
    now own it — try it on a game you *haven't* bought to show the 403).
-7. **Log in as the admin** account (`make promote-admin EMAIL=...` ahead of
+8. **Log in as the admin** account (`make promote-admin EMAIL=...` ahead of
    time), go to `/admin/games`, open a game, and **edit its discount** —
    then reload the storefront and point out the updated price and the
    `on_sale` filter picking it up.
+9. Optional: start a second checkout and click away instead of paying, to
+   show `/checkout/esewa/failure` and the order landing as "cancelled" in
+   `/orders`.
 
 ## Live deploy notes (optional)
 
@@ -161,6 +228,12 @@ container alias.
      cross-site request the frontend makes
    - `COOKIE_DOMAIN` → leave empty unless you've put both services under a
      shared parent domain
+   - `FRONTEND_URL` → the same real production frontend URL as
+     `FRONTEND_ORIGIN` — eSewa's `success_url`/`failure_url` are built from
+     this, so a stale value here sends real payers back to the wrong place
+   - `ESEWA_ENV=production`, plus the real `ESEWA_PRODUCT_CODE` and
+     `ESEWA_SECRET_KEY` eSewa issues after onboarding — the sandbox values
+     this defaults to do not work against eSewa's live system
 4. Point the platform's healthcheck at `GET /health`.
 5. Run the one-off commands against the deployed container once, the same
    way Compose does locally:
