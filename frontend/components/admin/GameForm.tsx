@@ -13,7 +13,7 @@ import {
 } from "@/lib/gameForm";
 
 /** Hosts the store's next/image is configured for; see next.config.ts. */
-const STORE_IMAGE_HOSTS = ["picsum.photos"];
+const STORE_IMAGE_HOSTS = ["picsum.photos", "placehold.co", "images.unsplash.com"];
 
 function hostOf(url: string): string | null {
   try {
@@ -144,11 +144,11 @@ export default function GameForm({
 
       <Section title="Pricing">
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Price (USD)" htmlFor="price" required error={errors.price}>
-            <input id="price" inputMode="decimal" placeholder="29.99" value={values.price} onChange={(e) => set("price", e.target.value)} className={`${inputClass} ${borderFor(errors.price)}`} />
+          <Field label="Price (NPR)" htmlFor="price" required error={errors.price}>
+            <input id="price" inputMode="decimal" placeholder="3999" value={values.price} onChange={(e) => set("price", e.target.value)} className={`${inputClass} ${borderFor(errors.price)}`} />
           </Field>
           <Field label="Discount price" htmlFor="discountPrice" error={errors.discountPrice} hint="Leave empty for no discount.">
-            <input id="discountPrice" inputMode="decimal" placeholder="19.99" value={values.discountPrice} onChange={(e) => set("discountPrice", e.target.value)} className={`${inputClass} ${borderFor(errors.discountPrice)}`} />
+            <input id="discountPrice" inputMode="decimal" placeholder="2599" value={values.discountPrice} onChange={(e) => set("discountPrice", e.target.value)} className={`${inputClass} ${borderFor(errors.discountPrice)}`} />
           </Field>
         </div>
         <Field label="Discount ends" htmlFor="discountEndsAt" error={errors.discountEndsAt} hint="Your local time. Leave empty for a discount with no end date.">

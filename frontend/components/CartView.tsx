@@ -10,6 +10,7 @@ import { useCart } from "@/hooks/useCart";
 import { useLibrary } from "@/hooks/useLibrary";
 import { useLoad } from "@/hooks/useLoad";
 import { checkout } from "@/lib/orders";
+import { formatPrice } from "@/lib/pricing";
 import {
   getPaymentMode,
   initiateEsewaPayment,
@@ -81,12 +82,12 @@ function CartContents() {
                   <dt className="text-on-surface-variant">
                     {count} {count === 1 ? "item" : "items"}
                   </dt>
-                  <dd className="text-on-surface">${cart.total.toFixed(2)}</dd>
+                  <dd className="text-on-surface">{formatPrice(cart.total)}</dd>
                 </div>
                 <div className="flex items-baseline justify-between border-t border-white/10 pt-4">
                   <dt className="font-semibold text-on-surface">Total</dt>
                   <dd className="text-2xl font-black text-on-surface">
-                    ${cart.total.toFixed(2)}
+                    {formatPrice(cart.total)}
                   </dd>
                 </div>
               </dl>

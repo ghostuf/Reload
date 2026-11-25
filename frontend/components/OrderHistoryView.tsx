@@ -5,6 +5,7 @@ import RequireAuth from "@/components/RequireAuth";
 import { formatDate, OrderStatusBadge } from "@/components/OrderView";
 import { useLoad } from "@/hooks/useLoad";
 import { getOrders } from "@/lib/orders";
+import { formatPrice } from "@/lib/pricing";
 import type { OrderSummary } from "@/types/order";
 import ErrorState from "@/components/ErrorState";
 
@@ -90,7 +91,7 @@ function OrderRow({ order }: { order: OrderSummary }) {
         </div>
         <div className="flex items-center gap-4">
           <span className="text-lg font-black text-on-surface">
-            ${order.total_price.toFixed(2)}
+            {formatPrice(order.total_price)}
           </span>
           <span
             aria-hidden

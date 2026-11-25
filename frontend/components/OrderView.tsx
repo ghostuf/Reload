@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import RequireAuth from "@/components/RequireAuth";
 import { useLoad } from "@/hooks/useLoad";
 import { getOrder } from "@/lib/orders";
+import { formatPrice } from "@/lib/pricing";
 import type { OrderItem } from "@/types/order";
 import ErrorState from "@/components/ErrorState";
 
@@ -124,7 +125,7 @@ function OrderReceipt({ orderId }: { orderId: string }) {
                   {items.length === 1 ? "item" : "items"}
                 </dt>
                 <dd className="text-2xl font-black text-on-surface">
-                  ${order.total_price.toFixed(2)}
+                  {formatPrice(order.total_price)}
                 </dd>
               </dl>
 
@@ -182,7 +183,7 @@ function ReceiptRow({ item }: { item: OrderItem }) {
         </p>
       </div>
       <span className="shrink-0 font-bold text-on-surface">
-        ${item.price_at_purchase.toFixed(2)}
+        {formatPrice(item.price_at_purchase)}
       </span>
     </li>
   );

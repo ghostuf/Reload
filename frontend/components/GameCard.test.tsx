@@ -23,9 +23,9 @@ describe("GameCard pricing", () => {
       />,
     );
 
-    const original = screen.getByText("$30.00");
+    const original = screen.getByText("Rs 30");
     expect(original).toHaveClass("line-through");
-    expect(screen.getByText("$21.00")).toBeInTheDocument();
+    expect(screen.getByText("Rs 21")).toBeInTheDocument();
     expect(screen.getByText("-30%")).toBeInTheDocument();
   });
 
@@ -38,8 +38,8 @@ describe("GameCard pricing", () => {
       />,
     );
 
-    expect(screen.getByText("$25.00")).toBeInTheDocument();
-    expect(screen.queryByText("$10.00")).not.toBeInTheDocument();
+    expect(screen.getByText("Rs 25")).toBeInTheDocument();
+    expect(screen.queryByText("Rs 10")).not.toBeInTheDocument();
     expect(screen.getByText("-50%")).toBeInTheDocument();
   });
 
@@ -56,7 +56,7 @@ describe("GameCard pricing", () => {
       />,
     );
 
-    const price = screen.getByText("$30.00");
+    const price = screen.getByText("Rs 30");
     expect(price).not.toHaveClass("line-through");
     expect(screen.queryByText(/^-\d+%$/)).not.toBeInTheDocument();
   });

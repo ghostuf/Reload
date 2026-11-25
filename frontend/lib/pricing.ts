@@ -76,5 +76,8 @@ export function saleEndsLabel(
 }
 
 export function formatPrice(amount: number): string {
-  return `$${amount.toFixed(2)}`;
+  return `Rs ${amount.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`;
 }
